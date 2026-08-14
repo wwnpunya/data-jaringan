@@ -225,10 +225,14 @@
  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const KEY='ftth_kegiatan_v1';
-let data=JSON.parse(localStorage.getItem(KEY)||'{"gangguan":[],"pemasangan":[],"penggantian":[],"olt":[]}');
-data.olt=data.olt||[];
+const SUPABASE_URL='https://hzzbsxlfexqwwfzrvlfz.supabase.co';
+const SUPABASE_KEY='sb_publishable_YC0AqTDK0zA5BrGOUsCa3Q_SZ4Mdkn_';
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let data={gangguan:[],pemasangan:[],penggantian:[],olt:[]};
+let loadingData=false;
 let currentType='', editId=null;
 
 const titles={
@@ -258,7 +262,8 @@ function formatTanggal(v){
   if(Number.isNaN(d.getTime()))return v;
   return d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function save(){render()}
+function dbError(err){console.error(err);alert('Gagal menyimpan data ke Supabase: '+(err?.message||err||'Kesalahan tidak diketahui'));}
 function uid(){return Date.now()+Math.random().toString(16).slice(2)}
 function openModal(type,id=null){
  currentType=type;editId=id;
@@ -297,17 +302,58 @@ function openModal(type,id=null){
  document.getElementById('modal').classList.add('show');
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');editId=null}
-document.getElementById('form').onsubmit=e=>{
- e.preventDefault();
- const o={id:editId||uid(),tanggal:fTanggal.value,pelanggan:fPelanggan.value.trim(),hp:fHp.value.trim(),teknisi:fTeknisi.value.trim(),ket:document.getElementById('fKet')?.value.trim()||''};
- if(currentType==='gangguan'){o.jenis=document.getElementById('fJenis').value;o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10))}
- if(currentType==='pemasangan'){o.paket=fPaket.value.trim();o.modem=fModem.value.trim();o.odp=fOdp.value.trim();o.port=fPort.value.trim()}
- if(currentType==='penggantian'){o.lama=fLama.value.trim();o.baru=fBaru.value.trim();o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10))}
- if(editId){data[currentType]=data[currentType].map(x=>x.id==editId?o:x)}else data[currentType].unshift(o);
- save();closeModal();
+document.getElementById('form').onsubmit=async e=>{
+  e.preventDefault();
+  const o={
+    tanggal:fTanggal.value,
+    pelanggan:fPelanggan.value.trim(),
+    hp:fHp.value.trim(),
+    teknisi:fTeknisi.value.trim(),
+    ket:document.getElementById('fKet')?.value.trim()||''
+  };
+  if(currentType==='gangguan'){
+    o.jenis=document.getElementById('fJenis').value;
+    o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10));
+  }
+  if(currentType==='pemasangan'){
+    o.paket=fPaket.value.trim();
+    o.modem=fModem.value.trim();
+    o.odp=fOdp.value.trim();
+    o.port=fPort.value.trim();
+  }
+  if(currentType==='penggantian'){
+    o.lama=fLama.value.trim();
+    o.baru=fBaru.value.trim();
+    o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10));
+  }
+
+  const btn=e.target.querySelector('.modal-foot .primary');
+  if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}
+  try{
+    let error;
+    if(editId){
+      ({error}=await supabaseClient.from(currentType).update(o).eq('id',editId));
+    }else{
+      ({error}=await supabaseClient.from(currentType).insert(o));
+    }
+    if(error) throw error;
+    closeModal();
+    await loadData();
+  }catch(err){
+    dbError(err);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Simpan';}
+  }
 };
 
-function del(type,id){if(confirm('Hapus data ini?')){data[type]=data[type].filter(x=>x.id!=id);save()}}
+async function del(type,id){
+  if(!confirm('Hapus data ini?'))return;
+  try{
+    const {error}=await supabaseClient.from(type).delete().eq('id',id);
+    if(error)throw error;
+    await loadData();
+  }catch(err){dbError(err)}
+}}
 function rowButtons(type,id){return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
 function filter(arr,input){const q=(document.getElementById(input)?.value||'').toLowerCase();return arr.filter(x=>(x.pelanggan+' '+x.teknisi+' '+JSON.stringify(x)).toLowerCase().includes(q))}
 
@@ -363,9 +409,10 @@ async function testOltConnection(){
     status.style.background='#dcfce7';
     status.style.color='#166534';
     connectedOlt.status='Online';
+    const {error:updateError}=await supabaseClient.from('olt').update({status:'Online'}).eq('id',connectedOlt.id);
+    if(updateError)console.error(updateError);
     const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
     if(idx>=0)data.olt[idx].status='Online';
-    localStorage.setItem(KEY,JSON.stringify(data));
     renderOlt();
   }catch(err){
     status.innerHTML='🔴 <b>Belum dapat terhubung.</b> Periksa IP, port, jaringan/VPN, dan apakah web management OLT aktif.';
@@ -374,7 +421,8 @@ async function testOltConnection(){
     if(connectedOlt){
       const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
       if(idx>=0)data.olt[idx].status='Offline';
-      localStorage.setItem(KEY,JSON.stringify(data));
+      const {error:updateError}=await supabaseClient.from('olt').update({status:'Offline'}).eq('id',connectedOlt.id);
+      if(updateError)console.error(updateError);
       renderOlt();
     }
   }
@@ -401,18 +449,37 @@ function openOltModal(id=null){
   document.getElementById('oltModal').classList.add('show');
 }
 function closeOltModal(){document.getElementById('oltModal').classList.remove('show');oltEditId=null}
-document.getElementById('oltForm').onsubmit=e=>{
+document.getElementById('oltForm').onsubmit=async e=>{
   e.preventDefault();
   const o={
-    id:oltEditId||uid(),
-    merk:oltMerk.value,nama:oltNama.value.trim(),ip:oltIp.value.trim(),
-    port:oltPort.value,user:oltUser.value.trim(),pass:oltPass.value,
-    nomor:oltNomor.value.trim(),pon:oltPon.value.trim(),ket:oltKet.value.trim(),
+    merk:oltMerk.value,
+    nama:oltNama.value.trim(),
+    ip:oltIp.value.trim(),
+    port:parseInt(oltPort.value||80,10),
+    username:oltUser.value.trim(),
+    password:oltPass.value,
+    nomor:oltNomor.value.trim(),
+    pon:oltPon.value.trim(),
+    ket:oltKet.value.trim(),
     status:'Belum dicek'
   };
-  if(oltEditId)data.olt=data.olt.map(x=>x.id==oltEditId?o:x);
-  else data.olt.unshift(o);
-  save();closeOltModal();
+  const btn=e.target.querySelector('.modal-foot .primary');
+  if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}
+  try{
+    let error;
+    if(oltEditId){
+      ({error}=await supabaseClient.from('olt').update(o).eq('id',oltEditId));
+    }else{
+      ({error}=await supabaseClient.from('olt').insert(o));
+    }
+    if(error)throw error;
+    closeOltModal();
+    await loadData();
+  }catch(err){
+    dbError(err);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Simpan OLT';}
+  }
 };
 function renderOlt(){
   const q=(document.getElementById('searchOlt')?.value||'').toLowerCase();
@@ -439,6 +506,37 @@ function delOlt(id){
     data.olt=data.olt.filter(x=>x.id!=id);save();
   }
 }
+
+async function loadData(){
+  if(loadingData)return;
+  loadingData=true;
+  try{
+    const results=await Promise.all([
+      supabaseClient.from('gangguan').select('*').order('tanggal',{ascending:false}).order('id',{ascending:false}),
+      supabaseClient.from('pemasangan').select('*').order('tanggal',{ascending:false}).order('id',{ascending:false}),
+      supabaseClient.from('penggantian').select('*').order('tanggal',{ascending:false}).order('id',{ascending:false}),
+      supabaseClient.from('olt').select('*').order('id',{ascending:false})
+    ]);
+    const names=['gangguan','pemasangan','penggantian','olt'];
+    for(let i=0;i<results.length;i++){
+      if(results[i].error)throw results[i].error;
+      data[names[i]]=results[i].data||[];
+    }
+    render();
+  }catch(err){
+    console.error(err);
+    alert('Gagal mengambil data dari Supabase: '+(err?.message||err||'Kesalahan tidak diketahui'));
+  }finally{
+    loadingData=false;
+  }
+}
+
+const realtimeChannel=supabaseClient.channel('ftth-realtime')
+  .on('postgres_changes',{event:'*',schema:'public',table:'gangguan'},()=>loadData())
+  .on('postgres_changes',{event:'*',schema:'public',table:'pemasangan'},()=>loadData())
+  .on('postgres_changes',{event:'*',schema:'public',table:'penggantian'},()=>loadData())
+  .on('postgres_changes',{event:'*',schema:'public',table:'olt'},()=>loadData())
+  .subscribe();
 
 function render(){
  data.olt=data.olt||[];
@@ -467,7 +565,7 @@ function empty(){return '<tr><td colspan="12"><div class="empty">Belum ada data.
  const el=document.getElementById(id); if(el) el.addEventListener('input',render);
 });
 setInterval(()=>clock.textContent=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'}),1000);
-render();
+loadData();
 </script>
 </body>
 </html>
