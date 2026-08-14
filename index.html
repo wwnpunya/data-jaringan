@@ -115,14 +115,7 @@
     </div>
   </div>
 
-<div class="card" style="margin-top:18px;border-left:4px solid #2563eb">
-  <b>Supabase</b>
-  <p style="margin:6px 0 0;color:#64748b;font-size:12px">
-    Jika muncul error Row Level Security (RLS), kebijakan INSERT/UPDATE/DELETE tabel harus mengizinkan role anon.
-  </p>
-</div>
-  <div class="card">
-    <h3>Daftar OLT</h3>
+<div class="card"><h3>Daftar OLT</h3>
     <p style="color:#64748b;font-size:13px">
       Data OLT dapat digunakan sebagai master untuk pengelolaan pelanggan dan monitoring.
     </p>
@@ -393,7 +386,10 @@ function connectOlt(id){
   document.getElementById('oltConnectionStatus').style.background='#fef3c7';
   document.getElementById('oltConnectionStatus').style.color='#92400e';
   document.getElementById('connectOltModal').classList.add('show');
-  testOltConnection();
+  document.getElementById('oltConnectionStatus').innerHTML =
+    'ℹ️ <b>Data OLT siap.</b> Klik "Buka Web OLT" untuk membuka halaman OLT. Status tidak ditentukan dari browser karena OLT dapat menolak CORS/mixed-content.';
+  document.getElementById('oltConnectionStatus').style.background='#dbeafe';
+  document.getElementById('oltConnectionStatus').style.color='#1e40af';
 }
 
 function closeConnectOlt(){
@@ -412,40 +408,10 @@ function getOltUrl(){
 async function testOltConnection(){
   if(!connectedOlt)return;
   const status=document.getElementById('oltConnectionStatus');
-  status.innerHTML='⏳ Menguji akses ke '+esc(connectedOlt.ip)+'...';
-  status.style.background='#fef3c7';
-  status.style.color='#92400e';
-
-  const base=getOltUrl();
-  try{
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),5000);
-    await fetch(base,{mode:'no-cors',cache:'no-store',signal:controller.signal});
-    clearTimeout(timer);
-
-    status.innerHTML='🟢 <b>OLT dapat diakses dari browser.</b> Silakan klik "Buka Web OLT" untuk login.';
-    status.style.background='#dcfce7';
-    status.style.color='#166534';
-    connectedOlt.status='Online';
-    const {error:updateError}=await supabaseClient.from('olt').update({status:'Online'}).eq('id',connectedOlt.id);
-    if(updateError)console.error(updateError);
-    const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
-    if(idx>=0)data.olt[idx].status='Online';
-    renderOlt();
-  }catch(err){
-    status.innerHTML='🔴 <b>Belum dapat terhubung.</b> Periksa IP, port, jaringan/VPN, dan apakah web management OLT aktif.';
-    status.style.background='#fee2e2';
-    status.style.color='#991b1b';
-    if(connectedOlt){
-      const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
-      if(idx>=0)data.olt[idx].status='Offline';
-      const {error:updateError}=await supabaseClient.from('olt').update({status:'Offline'}).eq('id',connectedOlt.id);
-      if(updateError)console.error(updateError);
-      renderOlt();
-    }
-  }
+  status.innerHTML='ℹ️ <b>Pengecekan otomatis dari browser dinonaktifkan.</b><br>Browser tidak bisa memastikan status OLT melalui fetch HTTP karena CORS/mixed-content. Gunakan "Buka Web OLT" untuk menguji akses.';
+  status.style.background='#dbeafe';
+  status.style.color='#1e40af';
 }
-
 function openOltWeb(){
   if(!connectedOlt)return;
   window.open(getOltUrl(),'_blank','noopener,noreferrer');
@@ -511,7 +477,7 @@ function renderOlt(){
       <td>${esc(x.ip)}</td>
       <td>${esc(x.port)}</td>
       <td>${esc(x.username||x.user||'')}</td>
-      <td><span class="badge ${x.status==='Online'?'green':'blue'}">${esc(x.status)}</span></td>
+      <td><span class="badge ${x.status==='Online'?'green':x.status==='Offline'?'red':'blue'}">${esc(x.status||'Belum dicek')}</span></td>
       <td>
         <button class="btn success" onclick="connectOlt('${x.id}')">🔗 Connect</button>
         <button class="btn secondary" onclick="openOltModal('${x.id}')">Edit</button>
