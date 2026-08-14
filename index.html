@@ -230,6 +230,10 @@
 const SUPABASE_URL='https://hzzbsxlfexqwwfzrvlfz.supabase.co';
 const SUPABASE_KEY='sb_publishable_YC0AqTDK0zA5BrGOUsCa3Q_SZ4Mdkn_';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+window.addEventListener('error', e => {
+  console.error('JavaScript error:', e.error || e.message);
+});
+
 
 let data={gangguan:[],pemasangan:[],penggantian:[],olt:[]};
 let loadingData=false;
@@ -353,7 +357,7 @@ async function del(type,id){
     if(error)throw error;
     await loadData();
   }catch(err){dbError(err)}
-}}
+}
 function rowButtons(type,id){return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
 function filter(arr,input){const q=(document.getElementById(input)?.value||'').toLowerCase();return arr.filter(x=>(x.pelanggan+' '+x.teknisi+' '+JSON.stringify(x)).toLowerCase().includes(q))}
 
@@ -484,7 +488,7 @@ document.getElementById('oltForm').onsubmit=async e=>{
 function renderOlt(){
   const q=(document.getElementById('searchOlt')?.value||'').toLowerCase();
   const rows=(data.olt||[]).filter(x=>
-    (x.nama+' '+x.merk+' '+x.ip+' '+x.user+' '+x.nomor+' '+x.pon).toLowerCase().includes(q)
+    (x.nama+' '+x.merk+' '+x.ip+' '+(x.username||x.user||'')+' '+x.nomor+' '+x.pon).toLowerCase().includes(q)
   );
   document.getElementById('tableOlt').innerHTML=rows.map(x=>`
     <tr>
@@ -492,7 +496,7 @@ function renderOlt(){
       <td>${esc(x.merk)}</td>
       <td>${esc(x.ip)}</td>
       <td>${esc(x.port)}</td>
-      <td>${esc(x.user)}</td>
+      <td>${esc(x.username||x.user||'')}</td>
       <td><span class="badge ${x.status==='Online'?'green':'blue'}">${esc(x.status)}</span></td>
       <td>
         <button class="btn success" onclick="connectOlt('${x.id}')">🔗 Connect</button>
@@ -501,10 +505,13 @@ function renderOlt(){
       </td>
     </tr>`).join('')||empty();
 }
-function delOlt(id){
-  if(confirm('Hapus data OLT ini?')){
-    data.olt=data.olt.filter(x=>x.id!=id);save();
-  }
+async function delOlt(id){
+  if(!confirm('Hapus data OLT ini?')) return;
+  try{
+    const {error}=await supabaseClient.from('olt').delete().eq('id',id);
+    if(error) throw error;
+    await loadData();
+  }catch(err){dbError(err)}
 }
 
 async function loadData(){
