@@ -565,7 +565,7 @@ function render(){
   ...data.gangguan.map(x=>({...x,menu:'Gangguan',detail:x.jenis})),
   ...data.pemasangan.map(x=>({...x,menu:'Pemasangan',detail:x.paket||'Pemasangan baru'})),
   ...data.penggantian.map(x=>({...x,menu:'Penggantian',detail:x.lama+' → '+x.baru}))
- ].sort((a,b)=>b.tanggal.localeCompare(a.tanggal)).slice(0,10);
+ ].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
  renderOlt();
  recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
 }
