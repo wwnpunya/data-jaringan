@@ -1,257 +1,472 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FTTH ODP</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manajemen FTTH - Gangguan, Pemasangan & Penggantian</title>
 <style>
-.table{
-    font-size:12px !important;
-}
-.table th,.table td{
-    padding:4px !important;
-    white-space:nowrap;
-}
-body{
-    font-size:14px;
-}
+:root{--primary:#2563eb;--primary2:#1d4ed8;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--danger:#dc2626;--success:#16a34a;--warning:#d97706}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:flex;min-height:100vh}.sidebar{width:245px;background:#0f172a;color:#fff;position:fixed;left:0;top:0;bottom:0;padding:18px 12px;z-index:20}
+.brand{font-size:20px;font-weight:800;padding:12px 14px 24px}.brand small{display:block;font-size:11px;color:#94a3b8;margin-top:5px}
+.nav button{width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;padding:13px 14px;border-radius:10px;margin:3px 0;cursor:pointer;font-size:14px}
+.nav button:hover,.nav button.active{background:#1d4ed8;color:#fff}.nav span{margin-left:9px}
+.main{margin-left:245px;width:calc(100% - 245px);padding:22px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.top h1{margin:0;font-size:25px}.top p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 3px 14px rgba(15,23,42,.04)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{padding:18px;border-radius:14px;background:#fff;border:1px solid var(--border)}.stat b{font-size:28px;display:block;margin-top:7px}.stat small{color:var(--muted)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}.search,.select,.input,textarea{border:1px solid #cbd5e1;border-radius:9px;padding:10px 12px;background:#fff;font-size:14px}.search{min-width:220px;flex:1}
+.btn{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}.primary{background:var(--primary);color:#fff}.success{background:var(--success);color:#fff}.danger{background:var(--danger);color:#fff}.secondary{background:#e2e8f0;color:#0f172a}.warning{background:var(--warning);color:#fff}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:11px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}th{background:#f8fafc;color:#475569;white-space:nowrap}td .btn{padding:6px 9px;font-size:11px}
+.badge{display:inline-block;padding:5px 8px;border-radius:20px;font-size:11px;font-weight:700}.badge.green{background:#dcfce7;color:#166534}.badge.red{background:#fee2e2;color:#991b1b}.badge.orange{background:#ffedd5;color:#9a3412}.badge.blue{background:#dbeafe;color:#1e40af}.badge.gangguan{background:#fee2e2;color:#991b1b}.badge.pemasangan{background:#dcfce7;color:#166534}.badge.penggantian{background:#fef3c7;color:#92400e}
+.panel{display:none}.panel.active{display:block}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modal-box{background:#fff;border-radius:15px;width:min(680px,100%);max-height:92vh;overflow:auto}.modal-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#f1f5f9;border-radius:8px;padding:8px;cursor:pointer}.modal-body{padding:18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:#475569}.field input,.field select,.field textarea{width:100%}.modal-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.empty{text-align:center;padding:35px;color:var(--muted)}
+.mobile-menu{display:none}
+@media(max-width:900px){.sidebar{width:210px}.main{margin-left:210px;width:calc(100% - 210px)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;width:100%;padding:14px}.mobile-menu{display:inline-block}.top h1{font-size:20px}.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.toolbar{align-items:stretch}.search{min-width:100%}.top{gap:10px}.top-right{display:none}}
 </style>
-
-
-<style>
-.table{
-    font-size:15px !important;
-}
-.table th,
-.table td{
-    font-size:15px !important;
-    
-    padding:6px !important;
-}
-
-.table th{
-    font-size:14px !important;
-}
-
-
-</style>
-
-
-<style>
-.table thead th{
-    font-weight:bold !important;
-}
-.table tbody td{
-    font-weight:normal !important;
-}
-</style>
-
 </head>
-<body class="bg-light">
-<div class="container py-3">
-<h3>📡 WIFI 📡</h3>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">FTTH MANAGEMENT<small>Gangguan • Pemasangan • Penggantian</small></div>
+  <nav class="nav">
+    <button class="active" data-panel="dashboard">📊 <span>Dashboard</span></button>
+    <button data-panel="gangguan">🛠️ <span>Gangguan</span></button>
+    <button data-panel="pemasangan">🔌 <span>Pemasangan</span></button>
+    <button data-panel="penggantian">♻️ <span>Penggantian</span></button>
+    <button data-panel="olt">📡 <span>OLT</span></button>
+  </nav>
+</aside>
 
-<div class="card p-3 mb-3">
-<div class="row g-2">
-<div class="col-md-3"><label>Nama Pelanggan</label><input id="pelanggan" class="form-control"></div>
-<div class="col-md-3"><label>Nama Modem</label><input id="nama_modem" class="form-control"></div>
-<div class="col-md-3"><label>Koordinat</label><input id="koordinat" class="form-control"></div>
-<div class="col-md-3"><label>OLT</label><input id="olt" class="form-control"></div>
-<div class="col-md-2"><label>PON/VLAN</label><input id="pon" class="form-control"></div>
-<div class="col-md-2"><label>Nama ODP</label><input id="nomor_odp" class="form-control"></div>
-<div class="col-md-2"><label>Port ODP</label><input id="port_odp" class="form-control"></div>
-<div class="col-md-2"><label>Redaman</label><input id="redaman" class="form-control"></div>
+<main class="main">
+<header class="top">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn secondary mobile-menu" id="menuBtn">☰</button>
+    <div><h1 id="title">Dashboard</h1><p id="subtitle">Ringkasan pekerjaan teknisi FTTH.</p></div>
+  </div>
+  <div class="top-right" id="clock"></div>
+</header>
+
+<section class="panel active" id="panel-dashboard">
+  <div class="stats">
+    <div class="stat"><small>Total Gangguan</small><b id="sGangguan">0</b></div>
+    <div class="stat"><small>Total Pemasangan</small><b id="sPemasangan">0</b></div>
+    <div class="stat"><small>Total Penggantian</small><b id="sPenggantian">0</b></div>
+    <div class="stat"><small>Total Kegiatan</small><b id="sTotal">0</b></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h3>Data Kegiatan Terbaru</h3>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Menu</th><th>Pelanggan</th><th>Teknisi</th><th>Keterangan</th></tr></thead><tbody id="recent"></tbody></table></div>
+  </div>
+</section>
+
+<section class="panel" id="panel-gangguan">
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" id="searchGangguan" placeholder="Cari nama pelanggan atau teknisi...">
+      <button class="btn primary" onclick="openModal('gangguan')">＋ Tambah Gangguan</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Jenis Gangguan</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tableGangguan"></tbody></table></div>
+  </div>
+</section>
+
+<section class="panel" id="panel-pemasangan">
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" id="searchPemasangan" placeholder="Cari nama pelanggan atau teknisi...">
+      <button class="btn primary" onclick="openModal('pemasangan')">＋ Tambah Pemasangan</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Paket</th><th>Modem</th><th>ODP</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePemasangan"></tbody></table></div>
+  </div>
+</section>
+
+<section class="panel" id="panel-penggantian">
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" id="searchPenggantian" placeholder="Cari nama pelanggan atau teknisi...">
+      <button class="btn primary" onclick="openModal('penggantian')">＋ Tambah Penggantian</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Barang Diganti</th><th>Barang Baru</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePenggantian"></tbody></table></div>
+  </div>
+</section>
+
+<section class="panel" id="panel-olt">
+  <div class="card">
+    <div class="toolbar">
+      <input class="search" id="searchOlt" placeholder="Cari nama OLT, template, IP, atau username...">
+      <button class="btn primary" onclick="openOltModal()">＋ Tambah OLT</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama OLT</th>
+            <th>Merk / Template</th>
+            <th>Alamat IP OLT</th>
+            <th>Port</th>
+            <th>Username</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableOlt"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Daftar OLT</h3>
+    <p style="color:#64748b;font-size:13px">
+      Data OLT dapat digunakan sebagai master untuk pengelolaan pelanggan dan monitoring.
+    </p>
+  </div>
+</section>
+
+</main>
 </div>
 
-<div class="mt-3">
-<button class="btn btn-primary" onclick="simpan()" id="btnSimpan">Simpan</button>
-<button class="btn btn-success" onclick="exportExcel()">Export Excel</button>
-<button class="btn btn-danger" onclick="exportPDF()">Export PDF</button>
+
+
+<div class="modal" id="connectOltModal">
+<div class="modal-box">
+  <div class="modal-head">
+    <h3>🔗 Connect OLT</h3>
+    <button class="close" onclick="closeConnectOlt()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div id="oltConnectionInfo" class="card" style="margin:0 0 14px;background:#f8fafc"></div>
+    <div id="oltConnectionStatus" style="padding:12px;border-radius:9px;background:#f1f5f9;color:#475569;margin-bottom:14px">
+      Siap melakukan koneksi.
+    </div>
+    <div class="grid2">
+      <button class="btn success" id="btnOpenOlt" onclick="openOltWeb()">🌐 Buka Web OLT</button>
+      <button class="btn primary" id="btnTestOlt" onclick="testOltConnection()">🔎 Test Koneksi</button>
+    </div>
+    <p style="font-size:12px;color:#64748b;line-height:1.5;margin-top:15px">
+      Catatan: browser tidak dapat membuat koneksi SSH/Telnet langsung ke OLT.
+      Tombol ini melakukan pemeriksaan akses web HTTP/HTTPS dan membuka halaman login OLT.
+      Untuk membaca ONU, PON, dan redaman secara realtime diperlukan API OLT atau backend/proxy.
+    </p>
+  </div>
+  <div class="modal-foot">
+    <button class="btn secondary" onclick="closeConnectOlt()">Tutup</button>
+  </div>
 </div>
 </div>
 
-<div class="card p-3">
-<h5>Data Tersimpan</h5>
-
-<input type="text" id="cariPelanggan" class="form-control mb-2"
-placeholder="🔍 Cari Redaman, Nama Pelanggan, Nama ODP, OLT, PON atau Nomor Port..."
-onkeyup="render()">
-
-<div class="mb-3" id="boxJumlahPencarian" style="display:none;">
-<b>Jumlah hasil pencarian: <span id="jumlahPencarian">0</span></b>
+<div class="modal" id="oltModal">
+<div class="modal-box">
+  <div class="modal-head">
+    <h3 id="oltModalTitle">Tambah OLT</h3>
+    <button class="close" onclick="closeOltModal()">✕</button>
+  </div>
+  <form id="oltForm">
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="field">
+          <label>Merk / Template OLT *</label>
+          <select class="select" id="oltMerk" required>
+            <option value="">-- Pilih --</option>
+            <option>Hioso 7304 (Hioso)</option>
+            <option>HSGQ</option>
+            <option>VSOL</option>
+            <option>Hioso</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nama untuk OLT *</label>
+          <input class="input" id="oltNama" required placeholder="Contoh: OLT Kantor">
+        </div>
+        <div class="field">
+          <label>Alamat IP OLT *</label>
+          <input class="input" id="oltIp" required placeholder="Contoh: 103.239.XXX.XXX">
+        </div>
+        <div class="field">
+          <label>Port</label>
+          <input class="input" id="oltPort" type="number" value="80" min="1" max="65535">
+        </div>
+        <div class="field">
+          <label>Username OLT</label>
+          <input class="input" id="oltUser" placeholder="Contoh: admin">
+        </div>
+        <div class="field">
+          <label>Password OLT</label>
+          <input class="input" id="oltPass" type="password" placeholder="Password">
+        </div>
+        <div class="field">
+          <label>Nomor OLT</label>
+          <input class="input" id="oltNomor" placeholder="Contoh: OLT-01">
+        </div>
+        <div class="field">
+          <label>Jalur PON</label>
+          <input class="input" id="oltPon" placeholder="Contoh: GPON 1/1">
+        </div>
+      </div>
+      <div class="field">
+        <label>Keterangan</label>
+        <textarea id="oltKet" rows="3" placeholder="Keterangan OLT"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn secondary" onclick="closeOltModal()">Batal</button>
+      <button class="btn primary">Simpan OLT</button>
+    </div>
+  </form>
+</div>
 </div>
 
-<div class="table-responsive">
-<table class="table table-bordered">
-<thead>
-<tr>
-<th>Nama Pelanggan</th><th>Nama Modem</th><th>Koordinat</th><th>Nama OLT</th><th>PON / VLAN</th><th>Nama ODP</th><th>Port</th><th>Redaman</th><th>Aksi</th>
-</tr>
-</thead>
-<tbody id="tb"></tbody>
-</table>
-</div>
-</div>
+<div class="modal" id="modal">
+<div class="modal-box">
+ <div class="modal-head"><h3 id="modalTitle">Tambah Data</h3><button class="close" onclick="closeModal()">✕</button></div>
+ <form id="form"><div class="modal-body" id="formBody"></div>
+ <div class="modal-foot"><button type="button" class="btn secondary" onclick="closeModal()">Batal</button><button class="btn primary">Simpan</button></div></form>
+ </div>
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("ftthData")||"[]");
-let editIndex=-1;
+const KEY='ftth_kegiatan_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"gangguan":[],"pemasangan":[],"penggantian":[],"olt":[]}');
+data.olt=data.olt||[];
+let currentType='', editId=null;
 
-function render(){
-tb.innerHTML="";
-let totalPencarian=0;
-const keyword=(document.getElementById("cariPelanggan")?.value || "").toLowerCase();
-data.forEach((d,i)=>{
-
-if(keyword){
-const searchText = (
-    (d.redaman || "") + " " +
-    (d.pelanggan || "") + " " +
-    (d.nomor_odp || "") + " " +
-    (d.olt || "") + " " +
-    (d.pon || "") + " " +
-    (d.port_odp || "")
-).toLowerCase();
-
-if(!searchText.includes(keyword)) return;
-}
-
-totalPencarian++;
-tb.innerHTML += `<tr>
-<td>${d.pelanggan}</td><td>${d.nama_modem || ''}</td><td>${d.koordinat}</td>
-<td>${d.olt}</td>
-<td>${d.pon}</td>
-<td>${d.nomor_odp}</td>
-<td>${d.port_odp}</td>
-<td style="
-font-weight:bold;
-color:${
-parseFloat(d.redaman) <= -25 ? 'red' :
-parseFloat(d.redaman) >= -23 ? 'green' :
-'orange'
-}">
-${d.redaman}
-</td>
-<td>
-<button class='btn btn-warning btn-sm me-1' onclick='editData(${i})'>Edit</button>
-<button class='btn btn-danger btn-sm' onclick='hapusData(${i})'>Hapus</button>
-</td>
-</tr>`;
-});
-
-document.getElementById('jumlahPencarian').innerText=totalPencarian;
-
-if(keyword.trim() !== ""){
-    document.getElementById('boxJumlahPencarian').style.display='block';
-}else{
-    document.getElementById('boxJumlahPencarian').style.display='none';
-}
-
-}
-
-function simpan(){
-const item={
-pelanggan:pelanggan.value, koordinat:koordinat.value, olt:olt.value,
-pon:pon.value, nomor_odp:nomor_odp.value, port_odp:port_odp.value,
-redaman:redaman.value
+const titles={
+ dashboard:['Dashboard','Ringkasan pekerjaan teknisi FTTH.'],
+ gangguan:['Gangguan','Catat dan kelola laporan gangguan pelanggan.'],
+ pemasangan:['Pemasangan','Catat pemasangan pelanggan baru.'],
+ penggantian:['Penggantian','Catat penggantian perangkat pelanggan.'],
+ olt:['OLT','Kelola daftar OLT, IP, port, username, dan jalur PON.']
 };
 
-if(editIndex==-1){data.push(item);} else {data[editIndex]=item; editIndex=-1; btnSimpan.innerText="Simpan";}
-localStorage.setItem("ftthData",JSON.stringify(data));
-render();
-document.querySelectorAll("input").forEach(x=>x.value="");
+document.querySelectorAll('.nav button').forEach(btn=>btn.onclick=()=>{
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+ document.getElementById('title').textContent=titles[btn.dataset.panel][0];
+ document.getElementById('subtitle').textContent=titles[btn.dataset.panel][1];
+ document.getElementById('sidebar').classList.remove('open');
+ render();
+});
+
+document.getElementById('menuBtn').onclick=()=>document.getElementById('sidebar').classList.toggle('open');
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function formatTanggal(v){
+  if(!v)return '';
+  const d=new Date(v+'T00:00:00');
+  if(Number.isNaN(d.getTime()))return v;
+  return d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function uid(){return Date.now()+Math.random().toString(16).slice(2)}
+function openModal(type,id=null){
+ currentType=type;editId=id;
+ const old=id?data[type].find(x=>x.id==id):null;
+ const common=`
+ <div class="grid2">
+  <div class="field"><label>Tanggal *</label><input class="input" type="date" id="fTanggal" required value="${old?.tanggal||new Date().toISOString().slice(0,10)}"></div>
+  <div class="field"><label>Nama Pelanggan *</label><input class="input" id="fPelanggan" required value="${esc(old?.pelanggan)}"></div>
+  <div class="field"><label>No. HP</label><input class="input" id="fHp" value="${esc(old?.hp)}"></div>
+  <div class="field"><label>Nama Teknisi *</label><input class="input" id="fTeknisi" required value="${esc(old?.teknisi)}"></div>
+ </div>`;
+ let extra='';
+ if(type==='gangguan') extra=`
+ <div class="field"><label>Jenis Gangguan *</label><select class="select" id="fJenis" required>
+ <option value="">-- Pilih --</option><option>Internet Tidak Bisa</option><option>Lambat</option><option>LOS</option><option>Router/Modem</option><option>Kabel FO</option><option>Lainnya</option></select></div>
+ <div class="field"><label>Jumlah *</label><input class="input" id="fJumlah" type="number" min="1" step="1" required value="${old?.jumlah||1}"></div>
+ <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ if(type==='pemasangan') extra=`
+ <div class="grid2">
+  <div class="field"><label>Paket Internet</label><input class="input" id="fPaket" value="${esc(old?.paket)}"></div>
+  <div class="field"><label>Nama Modem</label><input class="input" id="fModem" value="${esc(old?.modem)}"></div>
+  <div class="field"><label>Nomor ODP</label><input class="input" id="fOdp" value="${esc(old?.odp)}"></div>
+  <div class="field"><label>Port ODP</label><input class="input" id="fPort" value="${esc(old?.port)}"></div>
+ </div>
+ <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ if(type==='penggantian') extra=`
+ <div class="grid2">
+  <div class="field"><label>Barang yang Diganti *</label><input class="input" id="fLama" required value="${esc(old?.lama)}" placeholder="Contoh: Modem"></div>
+  <div class="field"><label>Barang Baru *</label><input class="input" id="fBaru" required value="${esc(old?.baru)}" placeholder="Contoh: Modem HG8245H"></div>
+  <div class="field"><label>Jumlah *</label><input class="input" id="fJumlah" type="number" min="1" step="1" required value="${old?.jumlah||1}"></div>
+ </div>
+ <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ document.getElementById('modalTitle').textContent=(id?'Edit ':'Tambah ')+(type==='gangguan'?'Gangguan':type==='pemasangan'?'Pemasangan':'Penggantian');
+ document.getElementById('formBody').innerHTML=common+extra;
+ if(old&&type==='gangguan')document.getElementById('fJenis').value=old.jenis||'';
+ document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');editId=null}
+document.getElementById('form').onsubmit=e=>{
+ e.preventDefault();
+ const o={id:editId||uid(),tanggal:fTanggal.value,pelanggan:fPelanggan.value.trim(),hp:fHp.value.trim(),teknisi:fTeknisi.value.trim(),ket:document.getElementById('fKet')?.value.trim()||''};
+ if(currentType==='gangguan'){o.jenis=document.getElementById('fJenis').value;o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10))}
+ if(currentType==='pemasangan'){o.paket=fPaket.value.trim();o.modem=fModem.value.trim();o.odp=fOdp.value.trim();o.port=fPort.value.trim()}
+ if(currentType==='penggantian'){o.lama=fLama.value.trim();o.baru=fBaru.value.trim();o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10))}
+ if(editId){data[currentType]=data[currentType].map(x=>x.id==editId?o:x)}else data[currentType].unshift(o);
+ save();closeModal();
+};
+
+function del(type,id){if(confirm('Hapus data ini?')){data[type]=data[type].filter(x=>x.id!=id);save()}}
+function rowButtons(type,id){return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
+function filter(arr,input){const q=(document.getElementById(input)?.value||'').toLowerCase();return arr.filter(x=>(x.pelanggan+' '+x.teknisi+' '+JSON.stringify(x)).toLowerCase().includes(q))}
+
+let oltEditId=null;
+
+let connectedOlt=null;
+
+function connectOlt(id){
+  const olt=(data.olt||[]).find(x=>x.id==id);
+  if(!olt)return;
+  connectedOlt=olt;
+  document.getElementById('oltConnectionInfo').innerHTML=`
+    <b>${esc(olt.nama)}</b><br>
+    <span style="font-size:12px;color:#64748b">
+      ${esc(olt.merk)} • ${esc(olt.ip)}:${esc(olt.port||80)}
+    </span>
+  `;
+  document.getElementById('oltConnectionStatus').innerHTML='⏳ Memeriksa koneksi OLT...';
+  document.getElementById('oltConnectionStatus').style.background='#fef3c7';
+  document.getElementById('oltConnectionStatus').style.color='#92400e';
+  document.getElementById('connectOltModal').classList.add('show');
+  testOltConnection();
 }
 
-function editData(i){
-let d=data[i];
-pelanggan.value=d.pelanggan; koordinat.value=d.koordinat; olt.value=d.olt;
-pon.value=d.pon; nomor_odp.value=d.nomor_odp; port_odp.value=d.port_odp; redaman.value=d.redaman;
-editIndex=i;
-btnSimpan.innerText="Update";
+function closeConnectOlt(){
+  document.getElementById('connectOltModal').classList.remove('show');
+  connectedOlt=null;
 }
 
-function hapusData(i){
-if(confirm("Hapus data ini?")){
-data.splice(i,1);
-localStorage.setItem("ftthData",JSON.stringify(data));
-render();
-}
-}
-
-function exportExcel(){
-let csv="Nama,Koordinat,OLT,PON,Nomor ODP,Port ODP,Redaman\n";
-data.forEach(d=>{csv += `${d.pelanggan},${d.koordinat},${d.olt},${d.pon},${d.nomor_odp},${d.port_odp},${d.redaman}\n`;});
-const blob=new Blob([csv],{type:"text/csv"});
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="FTTH_Data.csv";
-a.click();
+function getOltUrl(){
+  if(!connectedOlt)return '';
+  let ip=connectedOlt.ip.trim();
+  if(!/^https?:\/\//i.test(ip)) ip='http://'+ip;
+  const port=connectedOlt.port ? ':'+connectedOlt.port : '';
+  return ip.replace(/\/$/,'')+port;
 }
 
-function exportPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+async function testOltConnection(){
+  if(!connectedOlt)return;
+  const status=document.getElementById('oltConnectionStatus');
+  status.innerHTML='⏳ Menguji akses ke '+esc(connectedOlt.ip)+'...';
+  status.style.background='#fef3c7';
+  status.style.color='#92400e';
 
-    doc.text("FTTH",14,15);
+  const base=getOltUrl();
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),5000);
+    await fetch(base,{mode:'no-cors',cache:'no-store',signal:controller.signal});
+    clearTimeout(timer);
 
-    doc.autoTable({
-        startY:20,
-        head:[[
-            "Nama Pelanggan",
-            "Koordinat",
-            "OLT",
-            "PON",
-            "Nama ODP",
-            "Port",
-            "Redaman"
-        ]],
-
-        body:data.map(d=>[
-            d.pelanggan,
-            d.koordinat,
-            d.olt,
-            d.pon,
-            d.nomor_odp,
-            d.port_odp,
-            d.redaman
-        ]),
-
-        didParseCell: function(dataCell){
-            // Kolom redaman = index 6
-            if(dataCell.section === 'body' && dataCell.column.index === 6){
-
-                const redaman = parseFloat(dataCell.cell.raw);
-
-                // Merah jika <= -25
-                if(redaman <= -25){
-                    dataCell.cell.styles.textColor = [255,0,0];
-                    dataCell.cell.styles.fontStyle = 'bold';
-                }
-
-                // Hijau jika >= -23
-                else if(redaman >= -23){
-                    dataCell.cell.styles.textColor = [0,128,0];
-                    dataCell.cell.styles.fontStyle = 'bold';
-                }
-
-                // Oranye untuk nilai di antaranya
-                else{
-                    dataCell.cell.styles.textColor = [255,140,0];
-                    dataCell.cell.styles.fontStyle = 'bold';
-                }
-            }
-        }
-    });
-
-    doc.save("FTTH_Data.pdf");
+    status.innerHTML='🟢 <b>OLT dapat diakses dari browser.</b> Silakan klik "Buka Web OLT" untuk login.';
+    status.style.background='#dcfce7';
+    status.style.color='#166534';
+    connectedOlt.status='Online';
+    const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
+    if(idx>=0)data.olt[idx].status='Online';
+    localStorage.setItem(KEY,JSON.stringify(data));
+    renderOlt();
+  }catch(err){
+    status.innerHTML='🔴 <b>Belum dapat terhubung.</b> Periksa IP, port, jaringan/VPN, dan apakah web management OLT aktif.';
+    status.style.background='#fee2e2';
+    status.style.color='#991b1b';
+    if(connectedOlt){
+      const idx=data.olt.findIndex(x=>x.id==connectedOlt.id);
+      if(idx>=0)data.olt[idx].status='Offline';
+      localStorage.setItem(KEY,JSON.stringify(data));
+      renderOlt();
+    }
+  }
 }
 
+function openOltWeb(){
+  if(!connectedOlt)return;
+  window.open(getOltUrl(),'_blank','noopener,noreferrer');
+}
+
+function openOltModal(id=null){
+  oltEditId=id;
+  const old=id?data.olt.find(x=>x.id==id):null;
+  document.getElementById('oltModalTitle').textContent=id?'Edit OLT':'Tambah OLT';
+  document.getElementById('oltMerk').value=old?.merk||'';
+  document.getElementById('oltNama').value=old?.nama||'';
+  document.getElementById('oltIp').value=old?.ip||'';
+  document.getElementById('oltPort').value=old?.port||80;
+  document.getElementById('oltUser').value=old?.user||'';
+  document.getElementById('oltPass').value=old?.pass||'';
+  document.getElementById('oltNomor').value=old?.nomor||'';
+  document.getElementById('oltPon').value=old?.pon||'';
+  document.getElementById('oltKet').value=old?.ket||'';
+  document.getElementById('oltModal').classList.add('show');
+}
+function closeOltModal(){document.getElementById('oltModal').classList.remove('show');oltEditId=null}
+document.getElementById('oltForm').onsubmit=e=>{
+  e.preventDefault();
+  const o={
+    id:oltEditId||uid(),
+    merk:oltMerk.value,nama:oltNama.value.trim(),ip:oltIp.value.trim(),
+    port:oltPort.value,user:oltUser.value.trim(),pass:oltPass.value,
+    nomor:oltNomor.value.trim(),pon:oltPon.value.trim(),ket:oltKet.value.trim(),
+    status:'Belum dicek'
+  };
+  if(oltEditId)data.olt=data.olt.map(x=>x.id==oltEditId?o:x);
+  else data.olt.unshift(o);
+  save();closeOltModal();
+};
+function renderOlt(){
+  const q=(document.getElementById('searchOlt')?.value||'').toLowerCase();
+  const rows=(data.olt||[]).filter(x=>
+    (x.nama+' '+x.merk+' '+x.ip+' '+x.user+' '+x.nomor+' '+x.pon).toLowerCase().includes(q)
+  );
+  document.getElementById('tableOlt').innerHTML=rows.map(x=>`
+    <tr>
+      <td><b>${esc(x.nama)}</b><br><small>${esc(x.nomor)}</small></td>
+      <td>${esc(x.merk)}</td>
+      <td>${esc(x.ip)}</td>
+      <td>${esc(x.port)}</td>
+      <td>${esc(x.user)}</td>
+      <td><span class="badge ${x.status==='Online'?'green':'blue'}">${esc(x.status)}</span></td>
+      <td>
+        <button class="btn success" onclick="connectOlt('${x.id}')">🔗 Connect</button>
+        <button class="btn secondary" onclick="openOltModal('${x.id}')">Edit</button>
+        <button class="btn danger" onclick="delOlt('${x.id}')">Hapus</button>
+      </td>
+    </tr>`).join('')||empty();
+}
+function delOlt(id){
+  if(confirm('Hapus data OLT ini?')){
+    data.olt=data.olt.filter(x=>x.id!=id);save();
+  }
+}
+
+function render(){
+ data.olt=data.olt||[];
+ data.gangguan=(data.gangguan||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
+ data.penggantian=(data.penggantian||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
+ const jumlahPenggantian=data.penggantian.reduce((n,x)=>n+(x.jumlah||1),0);
+ const jumlahGangguan=data.gangguan.reduce((n,x)=>n+(x.jumlah||1),0);
+ // Penggantian termasuk kategori gangguan, sehingga total Gangguan mencakup jumlah penggantian.
+ sGangguan.textContent=jumlahGangguan+jumlahPenggantian;
+ sPemasangan.textContent=data.pemasangan.length;
+ sPenggantian.textContent=jumlahPenggantian;
+ sTotal.textContent=jumlahGangguan+jumlahPenggantian+data.pemasangan.length;
+ tableGangguan.innerHTML=filter(data.gangguan,'searchGangguan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td><span class="badge orange">${esc(x.jenis)}</span></td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('gangguan',x.id)}</td></tr>`).join('')||empty();
+ tablePemasangan.innerHTML=filter(data.pemasangan,'searchPemasangan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.paket)}</td><td>${esc(x.modem)}</td><td>${esc(x.odp)} / ${esc(x.port)}</td><td>${esc(x.ket)}</td><td>${rowButtons('pemasangan',x.id)}</td></tr>`).join('')||empty();
+ tablePenggantian.innerHTML=filter(data.penggantian,'searchPenggantian').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.lama)}</td><td>${esc(x.baru)}</td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('penggantian',x.id)}</td></tr>`).join('')||empty();
+ const all=[
+  ...data.gangguan.map(x=>({...x,menu:'Gangguan',detail:x.jenis})),
+  ...data.pemasangan.map(x=>({...x,menu:'Pemasangan',detail:x.paket||'Pemasangan baru'})),
+  ...data.penggantian.map(x=>({...x,menu:'Penggantian',detail:x.lama+' → '+x.baru}))
+ ].sort((a,b)=>b.tanggal.localeCompare(a.tanggal)).slice(0,10);
+ renderOlt();
+ recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
+}
+function empty(){return '<tr><td colspan="12"><div class="empty">Belum ada data.</div></td></tr>'}
+['searchGangguan','searchPemasangan','searchPenggantian','searchOlt'].forEach(id=>{
+ const el=document.getElementById(id); if(el) el.addEventListener('input',render);
+});
+setInterval(()=>clock.textContent=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'}),1000);
 render();
 </script>
 </body>
