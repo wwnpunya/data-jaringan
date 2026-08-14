@@ -115,6 +115,12 @@
     </div>
   </div>
 
+<div class="card" style="margin-top:18px;border-left:4px solid #2563eb">
+  <b>Supabase</b>
+  <p style="margin:6px 0 0;color:#64748b;font-size:12px">
+    Jika muncul error Row Level Security (RLS), kebijakan INSERT/UPDATE/DELETE tabel harus mengizinkan role anon.
+  </p>
+</div>
   <div class="card">
     <h3>Daftar OLT</h3>
     <p style="color:#64748b;font-size:13px">
@@ -267,7 +273,15 @@ function formatTanggal(v){
   return d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
 }
 function save(){render()}
-function dbError(err){console.error(err);alert('Gagal menyimpan data ke Supabase: '+(err?.message||err||'Kesalahan tidak diketahui'));}
+function dbError(err){
+  console.error(err);
+  const msg=err?.message||err?.details||err||'Kesalahan tidak diketahui';
+  if(String(msg).toLowerCase().includes('row-level security') || String(msg).toLowerCase().includes('violates row-level security')){
+    alert('Data ditolak Supabase karena RLS (Row Level Security) belum mengizinkan INSERT/UPDATE/DELETE pada tabel ini. Jalankan SQL policy RLS yang diberikan.');
+  }else{
+    alert('Gagal menyimpan data ke Supabase: '+msg);
+  }
+}
 function uid(){return Date.now()+Math.random().toString(16).slice(2)}
 function openModal(type,id=null){
  currentType=type;editId=id;
@@ -445,8 +459,8 @@ function openOltModal(id=null){
   document.getElementById('oltNama').value=old?.nama||'';
   document.getElementById('oltIp').value=old?.ip||'';
   document.getElementById('oltPort').value=old?.port||80;
-  document.getElementById('oltUser').value=old?.user||'';
-  document.getElementById('oltPass').value=old?.pass||'';
+  document.getElementById('oltUser').value=old?.username||old?.user||'';
+  document.getElementById('oltPass').value=old?.password||old?.pass||'';
   document.getElementById('oltNomor').value=old?.nomor||'';
   document.getElementById('oltPon').value=old?.pon||'';
   document.getElementById('oltKet').value=old?.ket||'';
@@ -514,6 +528,23 @@ async function delOlt(id){
   }catch(err){dbError(err)}
 }
 
+
+async function cekAksesSupabase(){
+  const tables=['gangguan','pemasangan','penggantian','olt'];
+  const hasil={};
+  for(const table of tables){
+    try{
+      const {error}=await supabaseClient.from(table).select('*',{count:'exact',head:true});
+      hasil[table]=!error;
+      if(error) console.warn('Akses tabel '+table+':',error.message);
+    }catch(e){
+      hasil[table]=false;
+      console.warn('Akses tabel '+table+':',e);
+    }
+  }
+  return hasil;
+}
+
 async function loadData(){
   if(loadingData)return;
   loadingData=true;
@@ -526,8 +557,13 @@ async function loadData(){
     ]);
     const names=['gangguan','pemasangan','penggantian','olt'];
     for(let i=0;i<results.length;i++){
-      if(results[i].error)throw results[i].error;
-      data[names[i]]=results[i].data||[];
+      const r=results[i];
+      if(r.error){
+        console.warn('Gagal membaca tabel '+names[i]+':',r.error.message);
+        data[names[i]]=data[names[i]]||[];
+      }else{
+        data[names[i]]=r.data||[];
+      }
     }
     render();
   }catch(err){
