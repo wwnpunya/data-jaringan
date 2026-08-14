@@ -289,7 +289,7 @@ function openModal(type,id=null){
  let extra='';
  if(type==='gangguan') extra=`
  <div class="field"><label>Jenis Gangguan *</label><select class="select" id="fJenis" required>
- <option value="">-- Pilih --</option><option>Internet Tidak Bisa</option><option>Lemot</option><option>Kabel LOSS</option><option>Router/Modem</option><option>Kabel Backbone</option><option>Lainnya</option></select></div>
+ <option value="">-- Pilih --</option><option>Internet Tidak Bisa</option><option>Lambat</option><option>Kabel LOSS</option><option>Router/Modem</option><option>Kabel Backbone</option><option>Lainnya</option></select></div>
  <div class="field"><label>Jumlah *</label><input class="input" id="fJumlah" type="number" min="1" step="1" required value="${old?.jumlah||1}"></div>
  <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
  if(type==='pemasangan') extra=`
