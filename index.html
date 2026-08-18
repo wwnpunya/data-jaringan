@@ -14,6 +14,7 @@
 .main{margin-left:245px;width:calc(100% - 245px);padding:22px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.top h1{margin:0;font-size:25px}.top p{margin:5px 0 0;color:var(--muted);font-size:13px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 3px 14px rgba(15,23,42,.04)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{padding:18px;border-radius:14px;background:#fff;border:1px solid var(--border)}.stat b{font-size:28px;display:block;margin-top:7px}.stat small{color:var(--muted)}
+.stat.clickable{cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}.stat.clickable:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,23,42,.08);border-color:var(--primary)}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}.search,.select,.input,textarea{border:1px solid #cbd5e1;border-radius:9px;padding:10px 12px;background:#fff;font-size:14px}.search{min-width:220px;flex:1}
 .btn{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}.primary{background:var(--primary);color:#fff}.success{background:var(--success);color:#fff}.danger{background:var(--danger);color:#fff}.secondary{background:#e2e8f0;color:#0f172a}.warning{background:var(--warning);color:#fff}
 .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:11px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}th{background:#f8fafc;color:#475569;white-space:nowrap}td .btn{padding:6px 9px;font-size:11px}
@@ -50,9 +51,9 @@
 
 <section class="panel active" id="panel-dashboard">
   <div class="stats">
-    <div class="stat"><small>Total Gangguan</small><b id="sGangguan">0</b></div>
-    <div class="stat"><small>Total Pemasangan</small><b id="sPemasangan">0</b></div>
-    <div class="stat"><small>Total Penggantian</small><b id="sPenggantian">0</b></div>
+    <div class="stat clickable" onclick="switchPanel('gangguan')"><small>Total Gangguan</small><b id="sGangguan">0</b></div>
+    <div class="stat clickable" onclick="switchPanel('pemasangan')"><small>Total Pemasangan</small><b id="sPemasangan">0</b></div>
+    <div class="stat clickable" onclick="switchPanel('penggantian')"><small>Total Penggantian</small><b id="sPenggantian">0</b></div>
     <div class="stat"><small>Total Kegiatan</small><b id="sTotal">0</b></div>
   </div>
   <div class="card" style="margin-top:18px">
@@ -245,6 +246,11 @@ const titles={
  penggantian:['Penggantian','Catat penggantian perangkat pelanggan.'],
  olt:['OLT','Kelola daftar OLT, IP, port, username, dan jalur PON.']
 };
+
+function switchPanel(panelName) {
+  const btn = document.querySelector(`.nav button[data-panel="${panelName}"]`);
+  if (btn) btn.click();
+}
 
 document.querySelectorAll('.nav button').forEach(btn=>btn.onclick=()=>{
  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
