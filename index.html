@@ -37,6 +37,7 @@
     <button data-panel="pemasangan">🔌 <span>Pemasangan</span></button>
     <button data-panel="penggantian">♻️ <span>Penggantian</span></button>
     <button data-panel="olt">📡 <span>OLT</span></button>
+    <button data-panel="telegram">📢 <span>Notif Telegram</span></button>
   </nav>
 </aside>
 
@@ -120,6 +121,35 @@
     <p style="color:#64748b;font-size:13px">
       Data OLT dapat digunakan sebagai master untuk pengelolaan pelanggan dan monitoring.
     </p>
+  </div>
+</section>
+
+<section class="panel" id="panel-telegram">
+  <div class="card">
+    <div class="toolbar">
+      <h3>📢 Konfigurasi Notifikasi Telegram</h3>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:15px">
+      Masukkan Token Bot dan Chat ID Telegram Anda untuk mendapatkan notifikasi otomatis setiap kali data baru disimpan.
+    </p>
+    <form id="telegramForm">
+      <div class="field">
+        <label>Token Bot Telegram *</label>
+        <input class="input" id="teleToken" placeholder="Contoh: 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" required style="width:100%">
+      </div>
+      <div class="field">
+        <label>Chat ID / Group ID Penerima *</label>
+        <input class="input" id="teleChatId" placeholder="Contoh: -100123456789 atau 123456789" required style="width:100%">
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:8px;margin-top:12px;margin-bottom:15px">
+        <input type="checkbox" id="teleActive" style="width:auto;cursor:pointer">
+        <label for="teleActive" style="margin:0;font-weight:normal;cursor:pointer">Aktifkan Notifikasi Otomatis</label>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button type="submit" class="btn primary">Simpan Konfigurasi</button>
+        <button type="button" class="btn success" onclick="testTelegram()">Kirim Uji Coba</button>
+      </div>
+    </form>
   </div>
 </section>
 
@@ -244,7 +274,8 @@ const titles={
  gangguan:['Gangguan','Catat dan kelola laporan gangguan pelanggan.'],
  pemasangan:['Pemasangan','Catat pemasangan pelanggan baru.'],
  penggantian:['Penggantian','Catat penggantian perangkat pelanggan.'],
- olt:['OLT','Kelola daftar OLT, IP, port, username, dan jalur PON.']
+ olt:['OLT','Kelola daftar OLT, IP, port, username, dan jalur PON.'],
+ telegram:['Notif Telegram','Konfigurasi integrasi notifikasi Telegram.']
 };
 
 function switchPanel(panelName) {
@@ -354,8 +385,12 @@ document.getElementById('form').onsubmit=async e=>{
       ({error}=await supabaseClient.from(currentType).insert(o));
     }
     if(error) throw error;
+    const isNew = !editId;
     closeModal();
     await loadData();
+    if(isNew) {
+      sendTelegramNotification(currentType, o);
+    }
   }catch(err){
     dbError(err);
   }finally{
@@ -576,11 +611,105 @@ function render(){
  recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
 }
 function empty(){return '<tr><td colspan="12"><div class="empty">Belum ada data.</div></td></tr>'}
+
+function loadTelegramConfig(){
+  const cfg=JSON.parse(localStorage.getItem('ftth_telegram_config')||'{}');
+  document.getElementById('teleToken').value=cfg.token||'';
+  document.getElementById('teleChatId').value=cfg.chatId||'';
+  document.getElementById('teleActive').checked=!!cfg.active;
+}
+
+document.getElementById('telegramForm').onsubmit=e=>{
+  e.preventDefault();
+  const cfg={
+    token:document.getElementById('teleToken').value.trim(),
+    chatId:document.getElementById('teleChatId').value.trim(),
+    active:document.getElementById('teleActive').checked
+  };
+  localStorage.setItem('ftth_telegram_config',JSON.stringify(cfg));
+  alert('Konfigurasi Telegram berhasil disimpan!');
+};
+
+async function testTelegram(){
+  const token=document.getElementById('teleToken').value.trim();
+  const chatId=document.getElementById('teleChatId').value.trim();
+  if(!token||!chatId){
+    alert('Masukkan Token Bot dan Chat ID terlebih dahulu!');
+    return;
+  }
+  const text='📢 <b>Uji Coba Koneksi FTTH Management</b>\n\nKoneksi ke bot Telegram Anda berhasil!';
+  try{
+    const res=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:chatId,text:text,parse_mode:'HTML'})
+    });
+    const r=await res.json();
+    if(r.ok){
+      alert('Pesan uji coba berhasil dikirim!');
+    }else{
+      alert('Gagal mengirim pesan: '+r.description);
+    }
+  }catch(e){
+    alert('Gagal mengirim pesan: '+e.message);
+  }
+}
+
+async function sendTelegramNotification(type,o){
+  const cfg=JSON.parse(localStorage.getItem('ftth_telegram_config')||'{}');
+  if(!cfg.active||!cfg.token||!cfg.chatId)return;
+
+  let menuName='';
+  let detailInfo='';
+  if(type==='gangguan'){
+    menuName='🛠️ Gangguan Baru';
+    detailInfo=`• Jenis Gangguan: ${o.jenis}\n• Jumlah: ${o.jumlah}`;
+  }else if(type==='pemasangan'){
+    menuName='🔌 Pemasangan Baru';
+    detailInfo=`• Paket: ${o.paket||'-'}\n• Modem: ${o.modem||'-'}\n• ODP/Port: ${o.odp||'-'}/${o.port||'-'}`;
+  }else if(type==='penggantian'){
+    menuName='♻️ Penggantian Baru';
+    detailInfo=`• Barang Lama: ${o.lama}\n• Barang Baru: ${o.baru}\n• Jumlah: ${o.jumlah}`;
+  }else{
+    menuName='📝 Data Baru';
+  }
+
+  const totGangguan=sGangguan.textContent;
+  const totPemasangan=sPemasangan.textContent;
+
+  const text=`📢 <b>NOTIFIKASI DATA BARU (${menuName})</b>
+
+<b>Detail Data:</b>
+• Tanggal: ${formatTanggal(o.tanggal)}
+• Pelanggan: ${o.pelanggan}
+• No. HP: ${o.hp||'-'}
+• Teknisi: ${o.teknisi}
+${detailInfo}
+• Keterangan: ${o.ket||'-'}
+
+<b>Statistik Saat Ini:</b>
+• Total Gangguan: <b>${totGangguan}</b>
+• Total Pemasangan: <b>${totPemasangan}</b>
+
+<i>FTTH Management App</i>`;
+
+  try{
+    await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:cfg.chatId,text:text,parse_mode:'HTML'})
+    });
+  }catch(e){
+    console.error('Telegram notification failed:',e);
+  }
+}
+
 ['searchGangguan','searchPemasangan','searchPenggantian','searchOlt'].forEach(id=>{
  const el=document.getElementById(id); if(el) el.addEventListener('input',render);
 });
 setInterval(()=>clock.textContent=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'}),1000);
 loadData();
+loadTelegramConfig();
 </script>
 </body>
 </html>
