@@ -51,6 +51,29 @@
 </header>
 
 <section class="panel active" id="panel-dashboard">
+  <div class="card" style="margin-bottom:18px">
+    <div class="toolbar" style="margin-bottom:0">
+      <div style="flex:1;min-width:220px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Filter Bulan Dashboard</label>
+        <select class="select" id="dashboardMonth" style="width:100%">
+          <option value="">Semua Bulan</option>
+          <option value="1">Januari</option>
+          <option value="2">Februari</option>
+          <option value="3">Maret</option>
+          <option value="4">April</option>
+          <option value="5">Mei</option>
+          <option value="6">Juni</option>
+          <option value="7">Juli</option>
+          <option value="8">Agustus</option>
+          <option value="9">September</option>
+          <option value="10">Oktober</option>
+          <option value="11">November</option>
+          <option value="12">Desember</option>
+        </select>
+      </div>
+      <button class="btn secondary" type="button" onclick="resetDashboardMonth()">↺ Reset</button>
+    </div>
+  </div>
   <div class="stats">
     <div class="stat clickable" onclick="switchPanel('gangguan')"><small>Total Gangguan</small><b id="sGangguan">0</b></div>
     <div class="stat clickable" onclick="switchPanel('pemasangan')"><small>Total Pemasangan</small><b id="sPemasangan">0</b></div>
@@ -67,6 +90,22 @@
   <div class="card">
     <div class="toolbar">
       <input class="search" id="searchGangguan" placeholder="Cari nama pelanggan atau teknisi...">
+      <div style="min-width:180px"><select class="select" id="monthGangguan">
+        <option value="">Semua Bulan</option>
+        <option value="1">Januari</option>
+        <option value="2">Februari</option>
+        <option value="3">Maret</option>
+        <option value="4">April</option>
+        <option value="5">Mei</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">Agustus</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Desember</option>
+      </select></div>
+      <button class="btn secondary" type="button" onclick="resetMonthFilter('monthGangguan','searchGangguan')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('gangguan')">＋ Tambah Gangguan</button>
     </div>
     <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Jenis Gangguan</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tableGangguan"></tbody></table></div>
@@ -77,6 +116,22 @@
   <div class="card">
     <div class="toolbar">
       <input class="search" id="searchPemasangan" placeholder="Cari nama pelanggan atau teknisi...">
+      <div style="min-width:180px"><select class="select" id="monthPemasangan">
+        <option value="">Semua Bulan</option>
+        <option value="1">Januari</option>
+        <option value="2">Februari</option>
+        <option value="3">Maret</option>
+        <option value="4">April</option>
+        <option value="5">Mei</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">Agustus</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Desember</option>
+      </select></div>
+      <button class="btn secondary" type="button" onclick="resetMonthFilter('monthPemasangan','searchPemasangan')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('pemasangan')">＋ Tambah Pemasangan</button>
     </div>
     <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Paket</th><th>Modem</th><th>ODP</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePemasangan"></tbody></table></div>
@@ -87,6 +142,22 @@
   <div class="card">
     <div class="toolbar">
       <input class="search" id="searchPenggantian" placeholder="Cari nama pelanggan atau teknisi...">
+      <div style="min-width:180px"><select class="select" id="monthPenggantian">
+        <option value="">Semua Bulan</option>
+        <option value="1">Januari</option>
+        <option value="2">Februari</option>
+        <option value="3">Maret</option>
+        <option value="4">April</option>
+        <option value="5">Mei</option>
+        <option value="6">Juni</option>
+        <option value="7">Juli</option>
+        <option value="8">Agustus</option>
+        <option value="9">September</option>
+        <option value="10">Oktober</option>
+        <option value="11">November</option>
+        <option value="12">Desember</option>
+      </select></div>
+      <button class="btn secondary" type="button" onclick="resetMonthFilter('monthPenggantian','searchPenggantian')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('penggantian')">＋ Tambah Penggantian</button>
     </div>
     <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Barang Diganti</th><th>Barang Baru</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePenggantian"></tbody></table></div>
@@ -408,6 +479,20 @@ async function del(type,id){
 }
 function rowButtons(type,id){return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
 function filter(arr,input){const q=(document.getElementById(input)?.value||'').toLowerCase();return arr.filter(x=>(x.pelanggan+' '+x.teknisi+' '+JSON.stringify(x)).toLowerCase().includes(q))}
+function filterByMonth(arr,selectId){
+  const month=parseInt(document.getElementById(selectId)?.value||'',10);
+  if(!month)return arr;
+  return arr.filter(x=>{
+    if(!x.tanggal)return false;
+    const parts=String(x.tanggal).split('-');
+    return parts.length>=2 && parseInt(parts[1],10)===month;
+  });
+}
+function resetMonthFilter(monthId,searchId){
+  const m=document.getElementById(monthId); if(m)m.value='';
+  const s=document.getElementById(searchId); if(s)s.value='';
+  render();
+}
 
 let oltEditId=null;
 
@@ -588,27 +673,59 @@ const realtimeChannel=supabaseClient.channel('ftth-realtime')
   .on('postgres_changes',{event:'*',schema:'public',table:'olt'},()=>loadData())
   .subscribe();
 
+function getDashboardMonthFilter(){
+  const v=document.getElementById('dashboardMonth')?.value||'';
+  return v ? parseInt(v,10) : null;
+}
+
+function filterByDashboardMonth(arr){
+  const month=getDashboardMonthFilter();
+  if(!month)return arr;
+  return arr.filter(x=>{
+    if(!x.tanggal)return false;
+    const parts=String(x.tanggal).split('-');
+    return parts.length>=2 && parseInt(parts[1],10)===month;
+  });
+}
+
+function resetDashboardMonth(){
+  const el=document.getElementById('dashboardMonth');
+  if(el)el.value='';
+  render();
+}
+
 function render(){
- data.olt=data.olt||[];
- data.gangguan=(data.gangguan||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
- data.penggantian=(data.penggantian||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
- const jumlahPenggantian=data.penggantian.reduce((n,x)=>n+(x.jumlah||1),0);
- const jumlahGangguan=data.gangguan.reduce((n,x)=>n+(x.jumlah||1),0);
- // Penggantian termasuk kategori gangguan, sehingga total Gangguan mencakup jumlah penggantian.
- sGangguan.textContent=jumlahGangguan+jumlahPenggantian;
- sPemasangan.textContent=data.pemasangan.length;
- sPenggantian.textContent=jumlahPenggantian;
- sTotal.textContent=jumlahGangguan+jumlahPenggantian+data.pemasangan.length;
- tableGangguan.innerHTML=filter(data.gangguan,'searchGangguan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td><span class="badge orange">${esc(x.jenis)}</span></td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('gangguan',x.id)}</td></tr>`).join('')||empty();
- tablePemasangan.innerHTML=filter(data.pemasangan,'searchPemasangan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.paket)}</td><td>${esc(x.modem)}</td><td>${esc(x.odp)} / ${esc(x.port)}</td><td>${esc(x.ket)}</td><td>${rowButtons('pemasangan',x.id)}</td></tr>`).join('')||empty();
- tablePenggantian.innerHTML=filter(data.penggantian,'searchPenggantian').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.lama)}</td><td>${esc(x.baru)}</td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('penggantian',x.id)}</td></tr>`).join('')||empty();
- const all=[
-  ...data.gangguan.map(x=>({...x,menu:'Gangguan',detail:x.jenis})),
-  ...data.pemasangan.map(x=>({...x,menu:'Pemasangan',detail:x.paket||'Pemasangan baru'})),
-  ...data.penggantian.map(x=>({...x,menu:'Penggantian',detail:x.lama+' → '+x.baru}))
- ].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
- renderOlt();
- recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
+  data.olt=data.olt||[];
+  data.gangguan=(data.gangguan||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
+  data.penggantian=(data.penggantian||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
+
+  // Filter bulan hanya diterapkan pada Dashboard.
+  const dg=filterByDashboardMonth(data.gangguan);
+  const dp=filterByDashboardMonth(data.pemasangan||[]);
+  const dpg=filterByDashboardMonth(data.penggantian);
+
+  const jumlahPenggantian=dpg.reduce((n,x)=>n+(x.jumlah||1),0);
+  const jumlahGangguan=dg.reduce((n,x)=>n+(x.jumlah||1),0);
+
+  // Penggantian termasuk kategori gangguan, sehingga total Gangguan mencakup jumlah penggantian.
+  sGangguan.textContent=jumlahGangguan+jumlahPenggantian;
+  sPemasangan.textContent=dp.length;
+  sPenggantian.textContent=jumlahPenggantian;
+  sTotal.textContent=jumlahGangguan+jumlahPenggantian+dp.length;
+
+  // Tabel menu Gangguan/Pemasangan/Penggantian tetap menampilkan seluruh data.
+  tableGangguan.innerHTML=filterByMonth(filter(data.gangguan,'searchGangguan'),'monthGangguan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td><span class="badge orange">${esc(x.jenis)}</span></td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('gangguan',x.id)}</td></tr>`).join('')||empty();
+  tablePemasangan.innerHTML=filterByMonth(filter(data.pemasangan,'searchPemasangan'),'monthPemasangan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.paket)}</td><td>${esc(x.modem)}</td><td>${esc(x.odp)} / ${esc(x.port)}</td><td>${esc(x.ket)}</td><td>${rowButtons('pemasangan',x.id)}</td></tr>`).join('')||empty();
+  tablePenggantian.innerHTML=filterByMonth(filter(data.penggantian,'searchPenggantian'),'monthPenggantian').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.lama)}</td><td>${esc(x.baru)}</td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('penggantian',x.id)}</td></tr>`).join('')||empty();
+
+  const all=[
+    ...dg.map(x=>({...x,menu:'Gangguan',detail:x.jenis})),
+    ...dp.map(x=>({...x,menu:'Pemasangan',detail:x.paket||'Pemasangan baru'})),
+    ...dpg.map(x=>({...x,menu:'Penggantian',detail:x.lama+' → '+x.baru}))
+  ].sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
+
+  renderOlt();
+  recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${esc(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
 }
 function empty(){return '<tr><td colspan="12"><div class="empty">Belum ada data.</div></td></tr>'}
 
@@ -703,6 +820,11 @@ ${detailInfo}
     console.error('Telegram notification failed:',e);
   }
 }
+
+document.getElementById('dashboardMonth')?.addEventListener('change',render);
+['monthGangguan','monthPemasangan','monthPenggantian'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change',render);
+});
 
 ['searchGangguan','searchPemasangan','searchPenggantian','searchOlt'].forEach(id=>{
  const el=document.getElementById(id); if(el) el.addEventListener('input',render);
