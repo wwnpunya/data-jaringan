@@ -31,7 +31,6 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSy
 }
 .nav button:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(2px)}
 .nav button.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 8px 22px rgba(79,70,229,.28)}
-.nav span{margin-left:0}
 .main{margin-left:270px;width:calc(100% - 270px);padding:26px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:14px}
 .top h1{margin:0;font-size:28px;letter-spacing:-.5px}
@@ -155,7 +154,6 @@ td .btn{padding:6px 9px;font-size:11px}
 </header>
 
 <section class="panel active" id="panel-dashboard">
-
   <div class="card" style="margin-bottom:18px">
     <div class="toolbar" style="margin-bottom:0">
       <div style="flex:1;min-width:220px">
@@ -179,7 +177,6 @@ td .btn{padding:6px 9px;font-size:11px}
       <button class="btn secondary" type="button" onclick="resetDashboardMonth()">↺ Reset</button>
     </div>
   </div>
-
   <div class="stats">
     <div class="stat clickable" onclick="switchPanel('gangguan')"><small>Total Gangguan</small><b id="sGangguan">0</b></div>
     <div class="stat clickable" onclick="switchPanel('pemasangan')"><small>Total Pemasangan</small><b id="sPemasangan">0</b></div>
@@ -214,7 +211,7 @@ td .btn{padding:6px 9px;font-size:11px}
       <button class="btn secondary" type="button" onclick="resetMonthFilter('monthGangguan','searchGangguan')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('gangguan')">＋ Tambah Gangguan</button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Jenis Gangguan</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tableGangguan"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>Teknisi</th><th>Jenis Gangguan</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tableGangguan"></tbody></table></div>
   </div>
 </section>
 
@@ -240,7 +237,7 @@ td .btn{padding:6px 9px;font-size:11px}
       <button class="btn secondary" type="button" onclick="resetMonthFilter('monthPemasangan','searchPemasangan')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('pemasangan')">＋ Tambah Pemasangan</button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Paket</th><th>Modem</th><th>ODP</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePemasangan"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>Teknisi</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePemasangan"></tbody></table></div>
   </div>
 </section>
 
@@ -266,7 +263,7 @@ td .btn{padding:6px 9px;font-size:11px}
       <button class="btn secondary" type="button" onclick="resetMonthFilter('monthPenggantian','searchPenggantian')">↺ Reset</button>
       <button class="btn primary" onclick="openModal('penggantian')">＋ Tambah Penggantian</button>
     </div>
-    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>No. HP</th><th>Teknisi</th><th>Barang Diganti</th><th>Barang Baru</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePenggantian"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Nama Pelanggan</th><th>Teknisi</th><th>Barang Diganti</th><th>Barang Baru</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="tablePenggantian"></tbody></table></div>
   </div>
 </section>
 
@@ -292,6 +289,11 @@ td .btn{padding:6px 9px;font-size:11px}
         <tbody id="tableOlt"></tbody>
       </table>
     </div>
+  </div>
+  <div class="card"><h3>Daftar OLT</h3>
+    <p style="color:#64748b;font-size:13px">
+      Data OLT dapat digunakan sebagai master untuk pengelolaan pelanggan dan monitoring.
+    </p>
   </div>
 </section>
 
@@ -342,6 +344,10 @@ td .btn{padding:6px 9px;font-size:11px}
       <button class="btn success" id="btnOpenOlt" onclick="openOltWeb()">🌐 Buka Web OLT</button>
       <button class="btn primary" id="btnTestOlt" onclick="testOltConnection()">🔎 Test Koneksi</button>
     </div>
+    <p style="font-size:12px;color:#64748b;line-height:1.5;margin-top:15px">
+      Catatan: browser tidak dapat membuat koneksi SSH/Telnet langsung ke OLT.
+      Tombol ini melakukan pemeriksaan akses web HTTP/HTTPS dan membuka halaman login OLT.
+    </p>
   </div>
   <div class="modal-foot">
     <button class="btn secondary" onclick="closeConnectOlt()">Tutup</button>
@@ -424,6 +430,9 @@ td .btn{padding:6px 9px;font-size:11px}
 const SUPABASE_URL='https://hzzbsxlfexqwwfzrvlfz.supabase.co';
 const SUPABASE_KEY='sb_publishable_YC0AqTDK0zA5BrGOUsCa3Q_SZ4Mdkn_';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+window.addEventListener('error', e => {
+  console.error('JavaScript error:', e.error || e.message);
+});
 
 let data={gangguan:[],pemasangan:[],penggantian:[],olt:[]};
 let loadingData=false;
@@ -438,6 +447,14 @@ const titles={
  telegram:['Notif Telegram','Konfigurasi integrasi notifikasi Telegram.']
 };
 
+function setDefaultCurrentMonth(){
+  const curMonth=String(new Date().getMonth()+1);
+  const dM=document.getElementById('dashboardMonth'); if(dM && !dM.value) dM.value=curMonth;
+  const mG=document.getElementById('monthGangguan'); if(mG && !mG.value) mG.value=curMonth;
+  const mP=document.getElementById('monthPemasangan'); if(mP && !mP.value) mP.value=curMonth;
+  const mPg=document.getElementById('monthPenggantian'); if(mPg && !mPg.value) mPg.value=curMonth;
+}
+
 function switchPanel(panelName) {
   const btn = document.querySelector(`.nav button[data-panel="${panelName}"]`);
   if (btn) btn.click();
@@ -446,27 +463,11 @@ function switchPanel(panelName) {
 document.querySelectorAll('.nav button').forEach(btn=>btn.onclick=()=>{
  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
- const panelId = btn.dataset.panel;
- document.getElementById('panel-'+panelId).classList.add('active');
- document.getElementById('title').textContent=titles[panelId][0];
- document.getElementById('subtitle').textContent=titles[panelId][1];
+ document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+ document.getElementById('title').textContent=titles[btn.dataset.panel][0];
+ document.getElementById('subtitle').textContent=titles[btn.dataset.panel][1];
  document.getElementById('sidebar').classList.remove('open');
-
- // Jika membuka panel gangguan, pemasangan, atau penggantian, set default bulan ke bulan saat ini jika belum dipilih
- const currentMonthNum = (new Date().getMonth() + 1).toString();
- if(panelId === 'gangguan') {
-   const el = document.getElementById('monthGangguan');
-   if(el && !el.value) el.value = currentMonthNum;
- }
- if(panelId === 'pemasangan') {
-   const el = document.getElementById('monthPemasangan');
-   if(el && !el.value) el.value = currentMonthNum;
- }
- if(panelId === 'penggantian') {
-   const el = document.getElementById('monthPenggantian');
-   if(el && !el.value) el.value = currentMonthNum;
- }
-
+ setDefaultCurrentMonth();
  render();
 });
 
@@ -482,9 +483,12 @@ function formatTanggal(v){
 function dbError(err){
   console.error(err);
   const msg=err?.message||err?.details||err||'Kesalahan tidak diketahui';
-  alert('Gagal menyimpan data ke Supabase: '+msg);
+  if(String(msg).toLowerCase().includes('row-level security') || String(msg).toLowerCase().includes('violates row-level security')){
+    alert('Data ditolak Supabase karena RLS (Row Level Security) belum mengizinkan INSERT/UPDATE/DELETE pada tabel ini.');
+  }else{
+    alert('Gagal menyimpan data ke Supabase: '+msg);
+  }
 }
-
 function openModal(type,id=null){
  currentType=type;editId=id;
  const old=id?data[type].find(x=>x.id==id):null;
@@ -492,35 +496,25 @@ function openModal(type,id=null){
  <div class="grid2">
   <div class="field"><label>Tanggal *</label><input class="input" type="date" id="fTanggal" required value="${old?.tanggal||new Date().toISOString().slice(0,10)}"></div>
   <div class="field"><label>Nama Pelanggan *</label><input class="input" id="fPelanggan" required value="${esc(old?.pelanggan)}"></div>
-  <div class="field" style="grid-column:1/-1"><label>Nama Teknisi *</label><textarea class="input" id="fTeknisi" required rows="3" placeholder="Teknisi 1&#10;Teknisi 2">${esc(old?.teknisi)}</textarea><small style="display:block;color:#64748b;font-size:11px;margin-top:5px">Satu nama per baris untuk nomor vertikal.</small></div>
- </div>`;
+ </div>
+ <div class="field"><label>Nama Teknisi *</label><textarea class="input" id="fTeknisi" required rows="3" placeholder="Teknisi 1&#10;Teknisi 2&#10;Teknisi 3">${esc(old?.teknisi)}</textarea><small style="display:block;color:#64748b;font-size:11px;margin-top:5px">Bisa diisi satu nama per baris. Nomor akan dibuat otomatis secara vertikal.</small></div>`;
+ 
  let extra='';
  if(type==='gangguan') extra=`
  <div class="field"><label>Jenis Gangguan *</label><select class="select" id="fJenis" required>
- <option value="">-- Pilih Jenis Gangguan --</option>
- <option>Putus Total (LOS Merah)</option>
- <option>Internet Lambat</option>
- <option>Kabel Los / Putus</option>
- <option>Router / Modem Rusak</option>
- <option>Kabel Tertimpa Pohon</option>
- <option>Lainnya</option></select></div>
- <div class="field"><label>Jumlah *</label><input class="input" id="fJumlah" type="number" min="1" step="1" required value="${old?.jumlah||1}"></div>
+ <option value="">-- Pilih --</option><option>Internet Tidak Bisa</option><option>Lambat</option><option>Kabel LOSS</option><option>Router/Modem</option><option>Kabel Backbone</option><option>Lainnya</option></select></div>
  <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ 
  if(type==='pemasangan') extra=`
- <div class="grid2">
-  <div class="field"><label>Paket Internet</label><input class="input" id="fPaket" value="${esc(old?.paket)}"></div>
-  <div class="field"><label>Nama Modem</label><input class="input" id="fModem" value="${esc(old?.modem)}"></div>
-  <div class="field"><label>Nomor ODP</label><input class="input" id="fOdp" value="${esc(old?.odp)}"></div>
-  <div class="field"><label>Port ODP</label><input class="input" id="fPort" value="${esc(old?.port)}"></div>
- </div>
  <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ 
  if(type==='penggantian') extra=`
  <div class="grid2">
-  <div class="field"><label>Barang yang Diganti *</label><input class="input" id="fLama" required value="${esc(old?.lama)}" placeholder="Contoh: Modem Lama"></div>
-  <div class="field"><label>Barang Baru *</label><input class="input" id="fBaru" required value="${esc(old?.baru)}" placeholder="Contoh: Modem Baru"></div>
-  <div class="field"><label>Jumlah *</label><input class="input" id="fJumlah" type="number" min="1" step="1" required value="${old?.jumlah||1}"></div>
+  <div class="field"><label>Barang yang Diganti *</label><input class="input" id="fLama" required value="${esc(old?.lama)}" placeholder="Contoh: Modem"></div>
+  <div class="field"><label>Barang Baru *</label><input class="input" id="fBaru" required value="${esc(old?.baru)}" placeholder="Contoh: Modem HG8245H"></div>
  </div>
  <div class="field"><label>Keterangan</label><textarea id="fKet" rows="3">${esc(old?.ket)}</textarea></div>`;
+ 
  document.getElementById('modalTitle').textContent=(id?'Edit ':'Tambah ')+(type==='gangguan'?'Gangguan':type==='pemasangan'?'Pemasangan':'Penggantian');
  document.getElementById('formBody').innerHTML=common+extra;
  if(old&&type==='gangguan')document.getElementById('fJenis').value=old.jenis||'';
@@ -539,18 +533,18 @@ document.getElementById('form').onsubmit=async e=>{
   };
   if(currentType==='gangguan'){
     o.jenis=document.getElementById('fJenis').value;
-    o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10));
+    o.jumlah=1;
   }
   if(currentType==='pemasangan'){
-    o.paket=fPaket.value.trim();
-    o.modem=fModem.value.trim();
-    o.odp=fOdp.value.trim();
-    o.port=fPort.value.trim();
+    o.paket='';
+    o.modem='';
+    o.odp='';
+    o.port='';
   }
   if(currentType==='penggantian'){
     o.lama=fLama.value.trim();
     o.baru=fBaru.value.trim();
-    o.jumlah=Math.max(1,parseInt(document.getElementById('fJumlah')?.value||1,10));
+    o.jumlah=1;
   }
 
   const btn=e.target.querySelector('.modal-foot .primary');
@@ -588,7 +582,8 @@ async function del(type,id){
 function renderTeknisiVertikal(value){
   const raw=String(value??'').trim();
   if(!raw)return '<span style="color:#94a3b8">-</span>';
-  const names=raw.split(/\s*(?:,|\/|\n|\r|\s+dan\s+)\s*/i).map(x=>x.trim()).filter(Boolean);
+  const names=raw.split(/\s*(?:,|\/|\n|\r|\s+dan\s+)\s*/i)
+    .map(x=>x.trim()).filter(Boolean);
   const unique=[...new Set(names)];
   return `<div class="teknisi-list">${unique.map((name,i)=>
     `<div class="teknisi-item"><span class="teknisi-no">${i+1}</span><span class="teknisi-name">${esc(name)}</span></div>`
@@ -619,10 +614,24 @@ function connectOlt(id){
   const olt=(data.olt||[]).find(x=>x.id==id);
   if(!olt)return;
   connectedOlt=olt;
-  document.getElementById('oltConnectionInfo').innerHTML=`<b>${esc(olt.nama)}</b><br><span style="font-size:12px;color:#64748b">${esc(olt.merk)} • ${esc(olt.ip)}:${esc(olt.port||80)}</span>`;
+  document.getElementById('oltConnectionInfo').innerHTML=`
+    <b>${esc(olt.nama)}</b><br>
+    <span style="font-size:12px;color:#64748b">
+      ${esc(olt.merk)} • ${esc(olt.ip)}:${esc(olt.port||80)}
+    </span>
+  `;
+  document.getElementById('oltConnectionStatus').innerHTML =
+    'ℹ️ <b>Data OLT siap.</b> Klik "Buka Web OLT" untuk membuka halaman OLT.';
+  document.getElementById('oltConnectionStatus').style.background='#dbeafe';
+  document.getElementById('oltConnectionStatus').style.color='#1e40af';
   document.getElementById('connectOltModal').classList.add('show');
 }
-function closeConnectOlt(){document.getElementById('connectOltModal').classList.remove('show');connectedOlt=null;}
+
+function closeConnectOlt(){
+  document.getElementById('connectOltModal').classList.remove('show');
+  connectedOlt=null;
+}
+
 function getOltUrl(){
   if(!connectedOlt)return '';
   let ip=connectedOlt.ip.trim();
@@ -630,8 +639,18 @@ function getOltUrl(){
   const port=connectedOlt.port ? ':'+connectedOlt.port : '';
   return ip.replace(/\/$/,'')+port;
 }
-function testOltConnection(){alert('Gunakan tombol "Buka Web OLT" untuk mengakses langsung perangkat.');}
-function openOltWeb(){if(connectedOlt)window.open(getOltUrl(),'_blank','noopener,noreferrer');}
+
+function testOltConnection(){
+  if(!connectedOlt)return;
+  const status=document.getElementById('oltConnectionStatus');
+  status.innerHTML='ℹ️ Gunakan "Buka Web OLT" untuk menguji akses.';
+  status.style.background='#dbeafe';
+  status.style.color='#1e40af';
+}
+function openOltWeb(){
+  if(!connectedOlt)return;
+  window.open(getOltUrl(),'_blank','noopener,noreferrer');
+}
 
 function openOltModal(id=null){
   oltEditId=id;
@@ -649,6 +668,7 @@ function openOltModal(id=null){
   document.getElementById('oltModal').classList.add('show');
 }
 function closeOltModal(){document.getElementById('oltModal').classList.remove('show');oltEditId=null}
+
 document.getElementById('oltForm').onsubmit=async e=>{
   e.preventDefault();
   const o={
@@ -661,8 +681,10 @@ document.getElementById('oltForm').onsubmit=async e=>{
     nomor:oltNomor.value.trim(),
     pon:oltPon.value.trim(),
     ket:oltKet.value.trim(),
-    status:'Online'
+    status:'Belum dicek'
   };
+  const btn=e.target.querySelector('.modal-foot .primary');
+  if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}
   try{
     let error;
     if(oltEditId){
@@ -673,12 +695,18 @@ document.getElementById('oltForm').onsubmit=async e=>{
     if(error)throw error;
     closeOltModal();
     await loadData();
-  }catch(err){dbError(err)}
+  }catch(err){
+    dbError(err);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Simpan OLT';}
+  }
 };
 
 function renderOlt(){
   const q=(document.getElementById('searchOlt')?.value||'').toLowerCase();
-  const rows=(data.olt||[]).filter(x=>(x.nama+' '+x.merk+' '+x.ip+' '+(x.username||x.user||'')+' '+x.nomor+' '+x.pon).toLowerCase().includes(q));
+  const rows=(data.olt||[]).filter(x=>
+    (x.nama+' '+x.merk+' '+x.ip+' '+(x.username||x.user||'')+' '+x.nomor+' '+x.pon).toLowerCase().includes(q)
+  );
   document.getElementById('tableOlt').innerHTML=rows.map(x=>`
     <tr>
       <td><b>${esc(x.nama)}</b><br><small>${esc(x.nomor)}</small></td>
@@ -686,7 +714,7 @@ function renderOlt(){
       <td>${esc(x.ip)}</td>
       <td>${esc(x.port)}</td>
       <td>${esc(x.username||x.user||'')}</td>
-      <td><span class="badge green">Online</span></td>
+      <td><span class="badge ${x.status==='Online'?'green':x.status==='Offline'?'red':'blue'}">${esc(x.status||'Belum dicek')}</span></td>
       <td>
         <button class="btn success" onclick="connectOlt('${x.id}')">🔗 Connect</button>
         <button class="btn secondary" onclick="openOltModal('${x.id}')">Edit</button>
@@ -716,46 +744,31 @@ async function loadData(){
     const names=['gangguan','pemasangan','penggantian','olt'];
     for(let i=0;i<results.length;i++){
       const r=results[i];
-      if(!r.error){
+      if(r.error){
+        console.warn('Gagal membaca tabel '+names[i]+':',r.error.message);
+        data[names[i]]=data[names[i]]||[];
+      }else{
         data[names[i]]=r.data||[];
       }
     }
     render();
   }catch(err){
     console.error(err);
+    alert('Gagal mengambil data dari Supabase: '+(err?.message||err||'Kesalahan tidak diketahui'));
   }finally{
     loadingData=false;
   }
 }
 
-const realtimeChannel=supabaseClient.channel('ftth-realtime')
-  .on('postgres_changes',{event:'*',schema:'public',table:'gangguan'},()=>loadData())
-  .on('postgres_changes',{event:'*',schema:'public',table:'pemasangan'},()=>loadData())
-  .on('postgres_changes',{event:'*',schema:'public',table:'penggantian'},()=>loadData())
-  .on('postgres_changes',{event:'*',schema:'public',table:'olt'},()=>loadData());
-
 try {
-  realtimeChannel.subscribe((status, err) => {
-    if (err) console.warn('Supabase Realtime warning:', err);
-  });
-} catch (e) {
-  console.warn('Realtime subscription not available in sandbox:', e);
-}
-
-// Set default dashboard month to current month on initialization
-function initCurrentMonth() {
-  const currentMonthNum = (new Date().getMonth() + 1).toString();
-  const monthSelect = document.getElementById('dashboardMonth');
-  if (monthSelect) {
-    monthSelect.value = currentMonthNum;
-  }
-  // Set default juga untuk filter bulan di menu Gangguan, Pemasangan, dan Penggantian
-  const mg = document.getElementById('monthGangguan');
-  if (mg) mg.value = currentMonthNum;
-  const mp = document.getElementById('monthPemasangan');
-  if (mp) mp.value = currentMonthNum;
-  const mpg = document.getElementById('monthPenggantian');
-  if (mpg) mpg.value = currentMonthNum;
+  supabaseClient.channel('ftth-realtime')
+    .on('postgres_changes',{event:'*',schema:'public',table:'gangguan'},()=>loadData())
+    .on('postgres_changes',{event:'*',schema:'public',table:'pemasangan'},()=>loadData())
+    .on('postgres_changes',{event:'*',schema:'public',table:'penggantian'},()=>loadData())
+    .on('postgres_changes',{event:'*',schema:'public',table:'olt'},()=>loadData())
+    .subscribe();
+} catch(e) {
+  console.warn('Realtime subscription skipped:', e);
 }
 
 function getDashboardMonthFilter(){
@@ -781,28 +794,28 @@ function resetDashboardMonth(){
 
 function render(){
   data.olt=data.olt||[];
-  data.gangguan=(data.gangguan||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
-  data.penggantian=(data.penggantian||[]).map(x=>({...x,jumlah:Math.max(1,parseInt(x.jumlah||1,10))}));
+  data.gangguan=(data.gangguan||[]).map(x=>({...x,jumlah:1}));
+  data.penggantian=(data.penggantian||[]).map(x=>({...x,jumlah:1}));
 
   const dg=filterByDashboardMonth(data.gangguan);
   const dp=filterByDashboardMonth(data.pemasangan||[]);
   const dpg=filterByDashboardMonth(data.penggantian);
 
-  const jumlahPenggantian=dpg.reduce((n,x)=>n+(x.jumlah||1),0);
-  const jumlahGangguan=dg.reduce((n,x)=>n+(x.jumlah||1),0);
+  const jumlahPenggantian=dpg.length;
+  const jumlahGangguan=dg.length;
 
   sGangguan.textContent=jumlahGangguan+jumlahPenggantian;
   sPemasangan.textContent=dp.length;
   sPenggantian.textContent=jumlahPenggantian;
   sTotal.textContent=jumlahGangguan+jumlahPenggantian+dp.length;
 
-  tableGangguan.innerHTML=filterByMonth(filter(data.gangguan,'searchGangguan'),'monthGangguan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${renderTeknisiVertikal(x.teknisi)}</td><td><span class="badge orange">${esc(x.jenis)}</span></td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('gangguan',x.id)}</td></tr>`).join('')||empty();
-  tablePemasangan.innerHTML=filterByMonth(filter(data.pemasangan,'searchPemasangan'),'monthPemasangan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${renderTeknisiVertikal(x.teknisi)}</td><td>${esc(x.paket)}</td><td>${esc(x.modem)}</td><td>${esc(x.odp)} / ${esc(x.port)}</td><td>${esc(x.ket)}</td><td>${rowButtons('pemasangan',x.id)}</td></tr>`).join('')||empty();
-  tablePenggantian.innerHTML=filterByMonth(filter(data.penggantian,'searchPenggantian'),'monthPenggantian').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${esc(x.hp)}</td><td>${renderTeknisiVertikal(x.teknisi)}</td><td>${esc(x.lama)}</td><td>${esc(x.baru)}</td><td><b>${esc(x.jumlah||1)}</b></td><td>${esc(x.ket)}</td><td>${rowButtons('penggantian',x.id)}</td></tr>`).join('')||empty();
+  tableGangguan.innerHTML=filterByMonth(filter(data.gangguan,'searchGangguan'),'monthGangguan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${renderTeknisiVertikal(x.teknisi)}</td><td><span class="badge orange">${esc(x.jenis)}</span></td><td>${esc(x.ket)}</td><td>${rowButtons('gangguan',x.id)}</td></tr>`).join('')||empty();
+  tablePemasangan.innerHTML=filterByMonth(filter(data.pemasangan,'searchPemasangan'),'monthPemasangan').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${renderTeknisiVertikal(x.teknisi)}</td><td>${esc(x.ket)}</td><td>${rowButtons('pemasangan',x.id)}</td></tr>`).join('')||empty();
+  tablePenggantian.innerHTML=filterByMonth(filter(data.penggantian,'searchPenggantian'),'monthPenggantian').map((x,i)=>`<tr><td>${i+1}</td><td>${formatTanggal(x.tanggal)}</td><td><b>${esc(x.pelanggan)}</b></td><td>${renderTeknisiVertikal(x.teknisi)}</td><td>${esc(x.lama)}</td><td>${esc(x.baru)}</td><td>${esc(x.ket)}</td><td>${rowButtons('penggantian',x.id)}</td></tr>`).join('')||empty();
 
   const all=[
     ...dg.map(x=>({...x,menu:'Gangguan',detail:x.jenis})),
-    ...dp.map(x=>({...x,menu:'Pemasangan',detail:x.paket||'Pemasangan baru'})),
+    ...dp.map(x=>({...x,menu:'Pemasangan',detail:'Pemasangan baru'})),
     ...dpg.map(x=>({...x,menu:'Penggantian',detail:x.lama+' → '+x.baru}))
   ].sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
 
@@ -832,42 +845,87 @@ document.getElementById('telegramForm').onsubmit=e=>{
 async function testTelegram(){
   const token=document.getElementById('teleToken').value.trim();
   const chatId=document.getElementById('teleChatId').value.trim();
-  if(!token||!chatId){alert('Masukkan Token Bot dan Chat ID terlebih dahulu!');return;}
+  if(!token||!chatId){
+    alert('Masukkan Token Bot dan Chat ID terlebih dahulu!');
+    return;
+  }
+  const text='📢 <b>Uji Coba Koneksi FTTH Management</b>\n\nKoneksi ke bot Telegram Anda berhasil!';
   try{
     const res=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:chatId,text:'📢 <b>Uji Coba FTTH Management Berhasil!</b>',parse_mode:'HTML'})
+      body:JSON.stringify({chat_id:chatId,text:text,parse_mode:'HTML'})
     });
     const r=await res.json();
-    if(r.ok) alert('Pesan uji coba berhasil dikirim!');
-    else alert('Gagal: '+r.description);
-  }catch(e){alert('Gagal: '+e.message);}
+    if(r.ok){
+      alert('Pesan uji coba berhasil dikirim!');
+    }else{
+      alert('Gagal mengirim pesan: '+r.description);
+    }
+  }catch(e){
+    alert('Gagal mengirim pesan: '+e.message);
+  }
 }
 
 async function sendTelegramNotification(type,o){
   const cfg=JSON.parse(localStorage.getItem('ftth_telegram_config')||'{}');
   if(!cfg.active||!cfg.token||!cfg.chatId)return;
-  const text=`📢 <b>NOTIFIKASI DATA BARU (${type.toUpperCase()})</b>\n\n• Tanggal: ${formatTanggal(o.tanggal)}\n• Pelanggan: ${o.pelanggan}\n• Teknisi: ${o.teknisi}\n• Keterangan: ${o.ket||'-'}`;
+
+  let menuName='';
+  let detailInfo='';
+  if(type==='gangguan'){
+    menuName='🛠️ Gangguan Baru';
+    detailInfo=`• Jenis Gangguan: ${o.jenis}`;
+  }else if(type==='pemasangan'){
+    menuName='🔌 Pemasangan Baru';
+    detailInfo=`• Pemasangan baru`;
+  }else if(type==='penggantian'){
+    menuName='♻️ Penggantian Baru';
+    detailInfo=`• Barang Lama: ${o.lama}\n• Barang Baru: ${o.baru}`;
+  }else{
+    menuName='📝 Data Baru';
+  }
+
+  const totGangguan=sGangguan.textContent;
+  const totPemasangan=sPemasangan.textContent;
+
+  const text=`📢 <b>NOTIFIKASI DATA BARU (${menuName})</b>
+
+<b>Detail Data:</b>
+• Tanggal: ${formatTanggal(o.tanggal)}
+• Pelanggan: ${o.pelanggan}
+• Teknisi: ${o.teknisi}
+${detailInfo}
+• Keterangan: ${o.ket||'-'}
+
+<b>Statistik Saat Ini:</b>
+• Total Gangguan: <b>${totGangguan}</b>
+• Total Pemasangan: <b>${totPemasangan}</b>
+
+<i>FTTH Management App</i>`;
+
   try{
     await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({chat_id:cfg.chatId,text:text,parse_mode:'HTML'})
     });
-  }catch(e){console.error(e);}
+  }catch(e){
+    console.error('Telegram notification failed:',e);
+  }
 }
 
 document.getElementById('dashboardMonth')?.addEventListener('change',render);
 ['monthGangguan','monthPemasangan','monthPenggantian'].forEach(id=>{
   document.getElementById(id)?.addEventListener('change',render);
 });
+
 ['searchGangguan','searchPemasangan','searchPenggantian','searchOlt'].forEach(id=>{
  const el=document.getElementById(id); if(el) el.addEventListener('input',render);
 });
 setInterval(()=>clock.textContent=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'}),1000);
 
-initCurrentMonth();
+setDefaultCurrentMonth();
 loadData();
 loadTelegramConfig();
 </script>
