@@ -40,16 +40,16 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSy
  background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border:1px solid rgba(226,232,240,.9);
  border-radius:18px;padding:19px;margin-bottom:18px;box-shadow:var(--shadow)
 }
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}
 .stat{
- position:relative;overflow:hidden;padding:20px;border-radius:18px;background:#fff;border:1px solid var(--border);
+ position:relative;overflow:hidden;padding:11px 12px;border-radius:12px;background:#fff;border:1px solid var(--border);
  box-shadow:var(--shadow);transition:.2s
 }
-.stat:after{content:"";position:absolute;width:75px;height:75px;border-radius:50%;right:-25px;top:-25px;background:linear-gradient(135deg,#eef2ff,#f5f3ff)}
+.stat:after{content:"";position:absolute;width:58px;height:58px;border-radius:50%;right:-22px;top:-22px;background:linear-gradient(135deg,#eef2ff,#f5f3ff)}
 .stat:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(15,23,42,.1)}
 .stat.clickable{cursor:pointer}
-.stat small{color:var(--muted);font-weight:700;font-size:12px;position:relative;z-index:1}
-.stat b{font-size:31px;display:block;margin-top:8px;position:relative;z-index:1}
+.stat small{color:var(--muted);font-weight:700;font-size:11px;position:relative;z-index:1}
+.stat b{font-size:23px;display:block;margin-top:5px;position:relative;z-index:1}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 .toolbar h3{margin:0;flex:1}
 .search,.select,.input,textarea{
@@ -85,13 +85,13 @@ td .btn{padding:6px 9px;font-size:11px}
 .modal-foot{padding:14px 19px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
 .empty{text-align:center;padding:38px;color:var(--muted)}
 .mobile-menu{display:none}
-@media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}}
 @media(max-width:760px){
  .sidebar{width:270px;transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}
  .main{margin-left:0;width:100%;padding:14px}.mobile-menu{display:inline-block}
  .top h1{font-size:21px}.top-right{display:none}.stats{grid-template-columns:1fr 1fr}
  .grid2{grid-template-columns:1fr}.toolbar{align-items:stretch}.search{min-width:100%}
- .card{padding:14px;border-radius:15px}.stat{padding:16px}.stat b{font-size:26px}
+ .card{padding:14px;border-radius:15px}.stat{padding:10px}.stat b{font-size:21px}
 }
 </style>
 
@@ -120,12 +120,30 @@ td .btn{padding:6px 9px;font-size:11px}
   font-weight:700;color:#334155;
   white-space:nowrap;
 }
+.rekap-teknisi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:9px;
+}
+.rekap-teknisi-box{
+  min-width:0; padding:11px 12px; border:1px solid #e2e8f0;
+  border-radius:12px; background:linear-gradient(145deg,#fff,#f8faff);
+  box-shadow:0 3px 10px rgba(15,23,42,.045); cursor:pointer;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.rekap-teknisi-box:hover{transform:translateY(-2px);border-color:#a5b4fc;box-shadow:0 7px 16px rgba(79,70,229,.10)}
+.rekap-teknisi-name{font-size:12px;font-weight:800;color:#334155;line-height:1.35;overflow-wrap:anywhere}
+.rekap-teknisi-total{display:flex;align-items:baseline;gap:5px;margin-top:7px;color:#4f46e5}
+.rekap-teknisi-total b{font-size:23px;line-height:1;font-weight:900}
+.rekap-teknisi-total span{font-size:10px;color:#64748b;font-weight:700}
+.rekap-teknisi-detail{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.rekap-teknisi-detail span{font-size:9px;font-weight:750;padding:3px 5px;border-radius:6px;background:#eef2ff;color:#4338ca}
+@media(max-width:480px){.rekap-teknisi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.rekap-teknisi-box{padding:10px}}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar" id="sidebar">
-  <div class="brand">FTTH MANAGEMENT<small>Operations & Monitoring</small></div>
   <nav class="nav">
     <button class="active" data-panel="dashboard">📊 <span>Dashboard</span></button>
     <button data-panel="gangguan">🛠️ <span>Gangguan</span></button>
@@ -148,9 +166,9 @@ td .btn{padding:6px 9px;font-size:11px}
 <header class="top">
   <div style="display:flex;align-items:center;gap:10px">
     <button class="btn secondary mobile-menu" id="menuBtn">☰</button>
-    <div><h1 id="title">Dashboard</h1><p id="subtitle">Ringkasan pekerjaan teknisi FTTH.</p></div>
+    
   </div>
-  <div class="top-right" id="clock"></div>
+  
 </header>
 
 <section class="panel active" id="panel-dashboard">
@@ -184,7 +202,12 @@ td .btn{padding:6px 9px;font-size:11px}
     <div class="stat"><small>Total Kegiatan</small><b id="sTotal">0</b></div>
   </div>
   <div class="card" style="margin-top:18px">
-    <h3>Data Kegiatan Terbaru</h3>
+    <div class="toolbar" style="margin-bottom:12px">
+      <span class="badge blue" id="teknisiCount">0 Teknisi</span>
+    </div>
+    <div id="tableRekapTeknisi" class="rekap-teknisi-grid"></div>
+  </div>
+  <div class="card" style="margin-top:18px">
     <div class="table-wrap"><table><thead><tr><th>No.</th><th>Tanggal</th><th>Menu</th><th>Pelanggan</th><th>Teknisi</th><th>Keterangan</th></tr></thead><tbody id="recent"></tbody></table></div>
   </div>
 </section>
@@ -804,6 +827,8 @@ function render(){
   const jumlahPenggantian=dpg.length;
   const jumlahGangguan=dg.length;
 
+  renderRekapTeknisi(dg,dp,dpg);
+
   sGangguan.textContent=jumlahGangguan+jumlahPenggantian;
   sPemasangan.textContent=dp.length;
   sPenggantian.textContent=jumlahPenggantian;
@@ -822,6 +847,31 @@ function render(){
   renderOlt();
   recent.innerHTML=all.map((x,i)=>`<tr><td><b>${i+1}</b></td><td>${esc(formatTanggal(x.tanggal))}</td><td><span class="badge ${x.menu.toLowerCase()}">${x.menu}</span></td><td>${esc(x.pelanggan)}</td><td>${renderTeknisiVertikal(x.teknisi)}</td><td>${esc(x.detail)}</td></tr>`).join('')||empty();
 }
+function renderRekapTeknisi(gangguan,pemasangan,penggantian){
+  const rekap=new Map();
+  const sumber=[
+    {jenis:'gangguan',items:gangguan||[]},
+    {jenis:'pemasangan',items:pemasangan||[]},
+    {jenis:'penggantian',items:penggantian||[]}
+  ];
+  sumber.forEach(({jenis,items})=>items.forEach(item=>{
+    const namaUnik=new Map();
+    String(item.teknisi||'').trim()
+      .split(/\s*(?:,|\/|\n|\r|\s+dan\s+)\s*/i)
+      .map(n=>n.trim()).filter(Boolean)
+      .forEach(n=>{if(!namaUnik.has(n.toLocaleLowerCase('id-ID')))namaUnik.set(n.toLocaleLowerCase('id-ID'),n)});
+    namaUnik.forEach((nama,key)=>{
+      if(!rekap.has(key))rekap.set(key,{nama,gangguan:0,pemasangan:0,penggantian:0,total:0});
+      const row=rekap.get(key);row[jenis]++;row.total++;
+    });
+  }));
+  const rows=[...rekap.values()].sort((a,b)=>b.total-a.total||a.nama.localeCompare(b.nama,'id-ID'));
+  const count=document.getElementById('teknisiCount');
+  const body=document.getElementById('tableRekapTeknisi');
+  if(count)count.textContent=rows.length+' Teknisi';
+  if(body)body.innerHTML=rows.map((x,i)=>`<div class="rekap-teknisi-box"><div class="rekap-teknisi-name">${esc(x.nama)}</div><div class="rekap-teknisi-total"><b>${x.total}</b><span>kegiatan</span></div></div>`).join('')||'<div class="empty" style="grid-column:1/-1">Belum ada data teknisi pada periode ini.</div>';
+}
+
 function empty(){return '<tr><td colspan="12"><div class="empty">Belum ada data.</div></td></tr>'}
 
 function loadTelegramConfig(){
@@ -923,7 +973,7 @@ document.getElementById('dashboardMonth')?.addEventListener('change',render);
 ['searchGangguan','searchPemasangan','searchPenggantian','searchOlt'].forEach(id=>{
  const el=document.getElementById(id); if(el) el.addEventListener('input',render);
 });
-setInterval(()=>clock.textContent=new Date().toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'}),1000);
+
 
 setDefaultCurrentMonth();
 loadData();
