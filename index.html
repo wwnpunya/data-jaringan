@@ -155,6 +155,7 @@ td .btn{padding:6px 9px;font-size:11px}
     <button data-panel="penggantian">♻️ <span>Penggantian</span></button>
     <button data-panel="olt">📡 <span>OLT</span></button>
     <button data-panel="telegram">📢 <span>Notif Telegram</span></button>
+    <button data-panel="login">🔐 <span>Login Panel</span></button>
   </nav>
 
   <div style="margin:28px 4px 4px;padding:13px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)">
@@ -320,6 +321,22 @@ td .btn{padding:6px 9px;font-size:11px}
   </div>
 </section>
 
+<section class="panel" id="panel-login">
+  <div class="card" style="max-width:520px">
+    <h3>🔐 Login Panel Admin</h3>
+    <p style="font-size:13px;color:#64748b">Login diperlukan untuk menampilkan menu Edit dan Hapus data.</p>
+    <div id="loginStatus" style="padding:10px 12px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-size:13px;margin-bottom:14px">Status: Belum login</div>
+    <div id="loginFormArea">
+      <div class="field">
+        <label for="panelPassword">Sandi Panel</label>
+        <input class="input" type="password" id="panelPassword" placeholder="Masukkan sandi panel" autocomplete="current-password" style="width:100%">
+      </div>
+      <button class="btn primary" type="button" onclick="loginPanel()">Login</button>
+    </div>
+    <button class="btn danger" id="logoutPanelBtn" type="button" onclick="logoutPanel()" style="display:none">Logout Panel</button>
+  </div>
+</section>
+
 <section class="panel" id="panel-telegram">
   <div class="card">
     <div class="toolbar">
@@ -460,6 +477,41 @@ window.addEventListener('error', e => {
 let data={gangguan:[],pemasangan:[],penggantian:[],olt:[]};
 let loadingData=false;
 let currentType='', editId=null;
+let panelLoggedIn=false;
+const PANEL_PASSWORD='Banyuwangi2010';
+
+function updatePanelLoginUI(){
+  const status=document.getElementById('loginStatus');
+  const form=document.getElementById('loginFormArea');
+  const logout=document.getElementById('logoutPanelBtn');
+  if(status){
+    status.textContent=panelLoggedIn?'Status: Login sebagai admin — Edit dan Hapus aktif':'Status: Belum login — Edit dan Hapus disembunyikan';
+    status.style.background=panelLoggedIn?'#dcfce7':'#eff6ff';
+    status.style.color=panelLoggedIn?'#166534':'#1d4ed8';
+  }
+  if(form)form.style.display=panelLoggedIn?'none':'block';
+  if(logout)logout.style.display=panelLoggedIn?'inline-block':'none';
+}
+function loginPanel(){
+  const field=document.getElementById('panelPassword');
+  if((field?.value||'')!==PANEL_PASSWORD){
+    alert('Sandi panel salah.');
+    if(field){field.value='';field.focus();}
+    return;
+  }
+  panelLoggedIn=true;
+  if(field)field.value='';
+  updatePanelLoginUI();
+  render();
+  alert('Login panel berhasil. Menu Edit dan Hapus sekarang aktif.');
+}
+function logoutPanel(){
+  panelLoggedIn=false;
+  updatePanelLoginUI();
+  render();
+  alert('Berhasil logout. Menu Edit dan Hapus disembunyikan.');
+}
+
 
 const titles={
  dashboard:['Dashboard','Ringkasan pekerjaan teknisi FTTH.'],
@@ -594,6 +646,7 @@ document.getElementById('form').onsubmit=async e=>{
 };
 
 async function del(type,id){
+  if(!panelLoggedIn){alert('Silakan login panel untuk menghapus data.');return;}
   if(!confirm('Hapus data ini?'))return;
   try{
     const {error}=await supabaseClient.from(type).delete().eq('id',id);
@@ -613,7 +666,7 @@ function renderTeknisiVertikal(value){
   ).join('')}</div>`;
 }
 
-function rowButtons(type,id){return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
+function rowButtons(type,id){if(!panelLoggedIn)return '';return `<button class="btn secondary" onclick="openModal('${type}','${id}')">Edit</button> <button class="btn danger" onclick="del('${type}','${id}')">Hapus</button>`}
 function filter(arr,input){const q=(document.getElementById(input)?.value||'').toLowerCase();return arr.filter(x=>(x.pelanggan+' '+x.teknisi+' '+JSON.stringify(x)).toLowerCase().includes(q))}
 function filterByMonth(arr,selectId){
   const month=parseInt(document.getElementById(selectId)?.value||'',10);
@@ -676,6 +729,7 @@ function openOltWeb(){
 }
 
 function openOltModal(id=null){
+  if(id && !panelLoggedIn){alert('Silakan login panel untuk mengedit OLT.');return;}
   oltEditId=id;
   const old=id?data.olt.find(x=>x.id==id):null;
   document.getElementById('oltModalTitle').textContent=id?'Edit OLT':'Tambah OLT';
@@ -740,12 +794,13 @@ function renderOlt(){
       <td><span class="badge ${x.status==='Online'?'green':x.status==='Offline'?'red':'blue'}">${esc(x.status||'Belum dicek')}</span></td>
       <td>
         <button class="btn success" onclick="connectOlt('${x.id}')">🔗 Connect</button>
-        <button class="btn secondary" onclick="openOltModal('${x.id}')">Edit</button>
-        <button class="btn danger" onclick="delOlt('${x.id}')">Hapus</button>
+        ${panelLoggedIn?`<button class="btn secondary" onclick="openOltModal('${x.id}')">Edit</button>
+        <button class="btn danger" onclick="delOlt('${x.id}')">Hapus</button>`:''}
       </td>
     </tr>`).join('')||empty();
 }
 async function delOlt(id){
+  if(!panelLoggedIn){alert('Silakan login panel untuk menghapus OLT.');return;}
   if(!confirm('Hapus data OLT ini?')) return;
   try{
     const {error}=await supabaseClient.from('olt').delete().eq('id',id);
@@ -976,6 +1031,7 @@ document.getElementById('dashboardMonth')?.addEventListener('change',render);
 
 
 setDefaultCurrentMonth();
+updatePanelLoginUI();
 loadData();
 loadTelegramConfig();
 </script>
